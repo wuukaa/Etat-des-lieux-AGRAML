@@ -1,0 +1,26 @@
+{% extends "base.html" %} {%block title %}S'enregistrer{% endblock %}
+
+{% block content %}
+    <form method="POST">
+        <br>
+        <h3 align="center">S'enregistrer</h3>
+        <div class="form-group">
+            <label for="email">Adresse email</label>
+            <input type="email" class="form-control" name="email" placeholder="Email"/>
+        </div>
+        <div class="form-group">
+            <label for="user">Nom d'utilisateur</label>
+            <input type="text" class="form-control" name="user" placeholder="Nom d'utilisateur"/>
+        </div>
+        <div class="form-group">
+            <label for="password1">Mot de passe</label>
+            <input type="password" class="form-control" name="password1" placeholder="Mot de passe"/>
+        </div>
+        <div class="form-group">
+            <label for="password2">Confirmer le mot de passe</label>
+            <input type="password" class="form-control" name="password2" placeholder="Mot de passe"/>
+        </div>
+        <br />
+        <input type="submit" class="btn btn-primary" value="Valider">
+    </form>
+{% endblock %}

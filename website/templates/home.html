@@ -1,0 +1,31 @@
+{% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
+
+{% block content %}
+    <h1>Quel état des lieux voulez-vous faire?</h1>
+    <div align="center">
+        <form method="POST"></form>
+            <button type="submit" class="btn btn-primary">Chambre</button>
+            <br>
+            <button type="submit" class="btn btn-primary">Studio</button>
+            <br>
+            <button type="submit" class="btn btn-primary">Colloc</button>
+        </form>
+    </div>
+
+    <!-- <ul class="list-group list-group-flush" id="notes">
+        {% for note in notes %}
+        <li class="list-group-item">{{ note.data }}
+            <button type="button" class="close" onclick=deleteNote({{note.id}})>
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+    <form method="POST">
+        <textarea name="note" name="note" class="form-control"></textarea>
+        <div align="center">
+            <br>
+            <button type="submit" class="btn btn-primary">Add note</button>
+        </div>
+    </form> -->
+{% endblock %}
