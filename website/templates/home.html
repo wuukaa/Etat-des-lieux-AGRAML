@@ -2,15 +2,15 @@
 
 {% block content %}
     <h1>Quel état des lieux voulez-vous faire?</h1>
-    <div align="center">
-        <form method="POST"></form>
-            <button type="submit" class="btn btn-primary">Chambre</button>
-            <br>
-            <button type="submit" class="btn btn-primary">Studio</button>
-            <br>
-            <button type="submit" class="btn btn-primary">Colloc</button>
-        </form>
-    </div>
+    <ul class="list-group list-group-flush" id="list-chambres"></ul>
+    {% for boquette in logement %}
+            <li class="list-group-item">
+                <form action="/edl?id={{boquette.id}}" method="GET">
+                    <input type="submit" class="btn btn-primary" name='id' value={{boquette.numero}}></button>
+                </form>
+            </li>
+    {% endfor %}
+    </ul>
 
     <!-- <ul class="list-group list-group-flush" id="notes">
         {% for note in notes %}

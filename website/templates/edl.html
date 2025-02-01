@@ -1,0 +1,53 @@
+{% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
+
+{% block content %}
+  
+Nous sommes ici en {{chambre}}, c'est un {{type}}<br>
+
+<legend>Information sur le logement</legend>
+
+<b>Type de logement:</b> {{Data["Information"]["id_logement"]}}<br>
+<b>Est occupé:</b> <input type="checkbox" id="scales" name="scales" {% if Data["Information"]["entree_sortie"] %} checked {% endif %} /><br>
+<b>Prenom:</b><input type="text" id="prenom" name="prenom" required minlength="4" maxlength="150" size="10" value="{{Data["Information"]["prenom"]}}"/><br>
+<b>Nom:</b> <input type="text" id="nom" name="nom" required minlength="4" maxlength="150" size="10" value="{{Data["Information"]["nom"]}}"/><br>
+<b>Mail:</b> <input type="email" id="email" pattern=".+@example\.com" size="30" required value="{{Data["Information"]["mail"]}}"/><br>
+<b>Date de l'EDL:</b> <input type="date" id="start" name="trip-start" value="{{Data["Information"]["date"]}}" min="2025-01-01" max="2030-12-31" /><br>
+<br>
+<form method="post">
+{% for critere in Data.keys() %}
+    {%if critere == 'Information' %}
+    {% elif Data[critere] != dict() %}
+    <fieldset>
+        <legend>{{critere}}</legend>
+        <div>
+            {% for rub in Data[critere].keys(): %}
+                {% if rub != "id" %}
+                <h5>-> {{rub}}</h5>
+                    {% for choix in [[0, 'Très mauvais '], [1, 'Mauvais '], [2, 'OK'], [3, 'Bon'], [4, 'Très bon'], [5, 'Neuf']] %}
+                        {% if choix[0] == Data[critere][rub] %}
+                          <label class="radio">
+                            <input type="radio" checked id={{choix[0]}} name="{{critere+"."+rub}}" value="{{choix[0]}}"/>
+                            {{choix[1]}}
+                          </label>
+                        {% else %}
+                          <label class="radio">
+                            <input type="radio" id={{choix[0]}} name="{{critere+"."+rub}}" value="{{choix[0]}}"/>
+                            {{choix[1]}}
+                          </label>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endfor %}
+<div>
+    <button type="submit">Arrivé</button>
+    <button type="submit">Départ</button>
+    <button type="submit">Modifier</button>
+    <button type="submit">Supprimer</button>
+  </div>
+  </fieldset>
+  </li>
+</form>
+{% endblock %}

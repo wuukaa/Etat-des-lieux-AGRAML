@@ -1,0 +1,15 @@
+{% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
+
+{% block content %}
+
+<ul class="list-group list-group-flush" id="list-chambres"></ul>
+{% for chambre in chambres %}
+        <li class="list-group-item">
+            <form action="/edl?id={{chambre.id}}" method="GET">
+                <input type="submit" class="btn btn-primary" name='id' value={{chambre.numero}}></button>
+            </form>
+        </li>
+{% endfor %}
+    </ul>
+
+{% endblock %}

@@ -37,7 +37,8 @@ def logout():
 @auth.route('/sign-up', methods = ['GET', 'POST'])
 def signin():
     if request.method == 'POST':
-        print(request.form)
+        nom = request.form.get('nom')
+        prenom = request.form.get('prenom')
         email = request.form.get('email')
         username = request.form.get('user')
         password1 = request.form.get('password1')
@@ -56,8 +57,10 @@ def signin():
             flash('Mots de passe différents', category = 'error')
         elif not passWdCheck(password1):
             flash('Non respect des règles de mot de passe', category = 'error')
+        elif len(nom) == 0 or len(prenom) == 0:
+            flash('Veuillez renseigner ton nom et/ou ton prénom.', category='error')
         else:
-            new_user = User(email = email, username = username, password = generate_password_hash(password1))
+            new_user = User(email = email, username = username, password = generate_password_hash(password1), nom = nom, prenom = prenom)
             db.session.add(new_user)
             db.session.commit()
             flash('Demande envoyée', category = 'success')
