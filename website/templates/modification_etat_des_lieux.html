@@ -1,0 +1,56 @@
+{% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
+
+{% block content %}
+
+<br>
+<h1 class="display-4">Modification de l'état des lieux</h1>
+<br>
+
+<form method="post" action="/requete_etat_des_lieux?id_edl={{id_edl}}">
+<div class="list-group container-fluid">
+    {% for categorie in Valeurs.keys() %}
+        <legend class="list-group-item list-group-item-action active">{{categorie}}</legend>
+        <div class="list-group-item">
+            {% for element in Valeurs[categorie].keys() %}
+                <div class="col">
+                    <h5>{{element}}</h5>
+                </div>
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    {% for choix in [[1, 'Mauvais état'], [2, "Etat d'usage"], [3, 'Bon état'], [4, 'Très bon état'], [5, 'Neuf']] %}
+                        {% if choix[0] == Valeurs[categorie][element][0] %}
+                          <label class="btn btn-secondary active">
+                            <input type="radio" checked id={{choix[0]}} name="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.valeur'}}" value="{{choix[0]}}"/>
+                            {{choix[1]}}
+                          </label>
+                        {% else %}
+                          <label class="btn btn-secondary">
+                            <input type="radio" id={{choix[0]}} name="{{Valeurs[categorie][element][2] + categorie + '.' + element + '.valeur'}}" value="{{choix[0]}}"/>
+                            {{choix[1]}}
+                          </label>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% if Valeurs[categorie][element][1] != None %}
+                    <input type="text" class="form-control" id="Observation" name="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.observation'}}" placeholder="Observation" value="{{Valeurs[categorie][element][1]}}"></input>
+                {% else %}
+                    <input type="text" class="form-control" id="Observation" name="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.observation'}}" placeholder="Observation" value=""></input>
+                {% endif %}
+                <br>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+
+<br>
+<div class="text-center">
+    <div class="btn-group">
+        <button class="btn btn-success" type="submit" name="0.action" value="arrivee">Arrivée</button>
+        <button class="btn btn-success" type="submit" name="0.action" value="depart">Départ</button>
+    </div>
+    <button class="btn btn-warning" type="submit" name="0.action" value="modification">Modifier</button>
+    <button class="btn btn-danger" type="submit" name="0.action" value="supprimer">Supprimer</button>
+</div>
+
+</form>
+
+{% endblock %}

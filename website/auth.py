@@ -17,11 +17,11 @@ def login():
         print(user)
         if user:
             if check_password_hash(user.password, password):
-                flash('Logged in successfully!', category = 'success')
+                flash('Connexion réussite!', category = 'success')
                 login_user(user, remember = True)
                 return redirect(url_for('views.home'))
             else:
-                flash('Incorrect IDs', category = 'error')
+                flash('Mauvais identifiants', category = 'error')
         else:
             flash('''Tu n'es pas dans la base de donnée''', category = 'error')
 
@@ -64,5 +64,5 @@ def signin():
             db.session.add(new_user)
             db.session.commit()
             flash('Demande envoyée', category = 'success')
-            return redirect(url_for('views.home'))
+            return redirect(url_for('auth.login'))
     return render_template('sign_up.html', user = current_user)

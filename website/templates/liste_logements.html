@@ -1,0 +1,15 @@
+{% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
+
+{% block content %}
+
+<br>
+<h1 class="display-4">Quel logement?</h1>
+<br>
+
+<form action="/liste_etat_des_lieux" method="post">
+    {% for logement in Dict_logements.keys() %}
+        <button class="btn btn-outline-success btn-lg btn-block" type="submit" name="id_logement" value="{{Dict_logements[logement]}}">{{logement}}</button>
+        <br>
+    {% endfor %}
+</form>
+{% endblock %}

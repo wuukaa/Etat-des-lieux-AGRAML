@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link href='/website/templates/fonts/zagoth.otf' rel='stylesheet' type='text/css'>
         <link
           rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -24,12 +25,35 @@
             </button>
             <div class="collapse navbar-collapse" id="navbar">
                 <div class="navbar-nav">
+                    <a class="nav-item nav-link" id="home" href="accueil">Accueil</a>
                     {% if user.is_authenticated %}
-                    <a class="nav-item nav-link" id="home" href="/">Home</a>
-                    <a class="nav-item nav-link" id="logout" href="logout">Logout</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            État des lieux
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                          <a class="dropdown-item" href="etat_des_lieux?id=0">Chambre</a>
+                          <a class="dropdown-item" href="etat_des_lieux?id=1">Studio</a>
+                          <a class="dropdown-item" href="etat_des_lieux?id=2">Collocation</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Modifier
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                          <a class="dropdown-item" href="#">Éléments</a>
+                          <a class="dropdown-item" href="#">Catégories</a>
+                          <a class="dropdown-item" href="#">Logements</a>
+                          <a class="dropdown-item" href="#">Type de logements</a>
+                        </div>
+                    </li>
+                    <a class="nav-item nav-link" id="structure" href="#">Structure</a>
+                    <a class="nav-item nav-link" id="historique" href="#">Historique</a>
+                    <a class="nav-item nav-link" id="deconnexion" href="logout">Se déconnecter</a>
                     {% else %}
-                    <a class="nav-item nav-link" id="login" href="login">Login</a>
-                    <a class="nav-item nav-link" id="signUp" href="sign-up">Sign-up</a>
+                    <a class="nav-item nav-link" id="login" href="login">Se connecter</a>
+                    <a class="nav-item nav-link" id="signUp" href="sign-up">S'enregistrer</a>
                     {% endif %}
                 </div>
             </div>

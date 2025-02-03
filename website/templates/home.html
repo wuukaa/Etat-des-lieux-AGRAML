@@ -1,16 +1,31 @@
 {% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
 
 {% block content %}
+    <br>
     <h1>Quel état des lieux voulez-vous faire?</h1>
+    <br>
+
+    <div class="text-center">
     <ul class="list-group list-group-flush" id="list-chambres"></ul>
     {% for boquette in logement %}
             <li class="list-group-item">
-                <form action="/edl?id={{boquette.id}}" method="GET">
-                    <input type="submit" class="btn btn-primary" name='id' value={{boquette.numero}}></button>
+                {% if boquette.type_logement == 0 %}
+                <form action="/liste_edl?id={{boquette.id}}" method="GET">
+                    <input type="submit" class="btn btn-outline-info" name='id' value={{boquette.numero}}></button>
                 </form>
+                {% elif boquette.type_logement == 1 %}
+                <form action="/liste_edl?id={{boquette.id}}" method="GET">
+                    <input type="submit" class="btn btn-outline-warning" name='id' value={{boquette.numero}}></button>
+                </form>
+                {% else %}
+                <form action="/liste_edl?id={{boquette.id}}" method="GET">
+                    <input type="submit" class="btn btn-outline-danger" name='id' value={{boquette.numero}}></button>
+                </form>
+                {% endif %}
             </li>
     {% endfor %}
     </ul>
+    </div>
 
     <!-- <ul class="list-group list-group-flush" id="notes">
         {% for note in notes %}

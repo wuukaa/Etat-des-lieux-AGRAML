@@ -1,4 +1,7 @@
-from .models import *
+from flask import request
+from sqlalchemy import select
+from .models import Logement, EDL, User, Valeur, Element, CategorieElement
+from . import db
 
 specialList = ['&', '*', '?', '!', '(', ')', '=', '<', '>', "'", '"', '-', '+', '/']
 upperCaseList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -26,66 +29,67 @@ def userNmCheck(string):
             return False
     return True
 
-def getDataFromDatabase(logement):
-    type_logement = Logement.query.get(logement).type_logement
+# Fonction qui récupère la liste de tous les logement selon le type
+def getLogements(type_logement):
+    logement_query = select(Logement).where(Logement.type_logement == type_logement)
+    #logement_keys = db.session.execute(logement_query.select()).keys()
+    logement_values = db.session.execute(logement_query.select()).fetchall()
+    Logements = dict()
+    for tuple in logement_values:
+        Logements[tuple[1]] = tuple[0]
+    return Logements
 
-    information_query = select(EDL).where(logement == EDL.id_logement)
-    information_keys = db.session.execute(information_query.select()).keys()
-    information_values = db.session.execute(information_query.select()).first()
+# Fonction qui récupère les information d'un utilisateur (user) en fonction de son id
+def getUser(id_user):
+    user_query = select(User).where(User.id == id_user)
+    user_keys = db.session.execute(user_query.select()).keys()
+    user_values = db.session.execute(user_query.select()).first()
+    User_information = dict()
+    for i, col in enumerate(user_keys):
+        if col is not 'password':
+            User_information[col] = user_values[i]
+    return User_information
 
-    autre_query = select(AUTRE).where(AUTRE.id == EDL.id_a).where(EDL.id_logement == logement)
-    autre_keys = db.session.execute(autre_query.select()).keys()
-    autre_values = db.session.execute(autre_query.select()).first()
+# Fonction qui récupère la liste des EDL par logement spécifique
+def getEtat_des_lieux(id_logement):
+    edl_query = select(EDL).where(EDL.id_logement == id_logement)
+    edl_keys = db.session.execute(edl_query.select()).keys()
+    edl_values = db.session.execute(edl_query.select()).fetchall()
+    EDLs = []
+    for j, value in enumerate(edl_values):
+        Dict = dict()
+        user = getUser(edl_values[j][2])
+        for i, col in enumerate(edl_keys):
+            if col == 'effectue_par':
+                Dict[col] = user
+            else:
+                Dict[col] = value[i]
+        EDLs.append(Dict)
+    return EDLs
 
-    chambre_query = select(CHAMBRE).where(CHAMBRE.id == EDL.id_c).where(EDL.id_logement == logement)
-    chambre_keys = db.session.execute(chambre_query.select()).keys()
-    chambre_values = db.session.execute(chambre_query.select()).first()
+# Fonction qui récupère les données d'un état des lieux en fonction de son id
+def getValeurs(id_edl):
+    valeurs_query = select(Valeur).where(Valeur.id_edl == id_edl)
+    valeurs_keys = db.session.execute(valeurs_query.select()).keys()
+    valeurs_values = db.session.execute(valeurs_query.select()).fetchall()
+    Valeurs = dict()
+    for valeur in valeurs_values:
+        val = valeur[3]
+        observation = valeur[4]
+        id_element = valeur[2]
+        id = valeur[0]
+        element_query = select(Element).where(Element.id == id_element)
+        element_values = db.session.execute(element_query.select()).first()
+        element = element_values[2]
+        id_categorie = element_values[1]
+        categorie_query = select(CategorieElement).where(CategorieElement.id == id_categorie)
+        categorie_values = db.session.execute(categorie_query.select()).first()
+        categorie = categorie_values[1]
+        if categorie not in Valeurs.keys():
+            Valeurs[categorie] = {element : [val, observation, str(id)]}
+        else:
+            Valeurs[categorie][element] = [val, observation, str(id)]
+    return Valeurs
+    #db.session.add(new_user)
+    #db.session.commit()
 
-    kitchen_query = select(KITCHENETTE).where(KITCHENETTE.id == EDL.id_k).where(EDL.id_logement == logement)
-    kitchen_keys = db.session.execute(kitchen_query.select()).keys()
-    kitchen_values = db.session.execute(kitchen_query.select()).first()
-
-    sdb_query = select(SALLE_DE_BAIN).where(SALLE_DE_BAIN.id == EDL.id_sdb).where(EDL.id_logement == logement)
-    sdb_keys = db.session.execute(sdb_query.select()).keys()
-    sdb_values = db.session.execute(sdb_query.select()).first()
-
-    sdv_query = select(SALLE_DE_VIE).where(SALLE_DE_VIE.id == EDL.id_sdv).where(EDL.id_logement == logement)
-    sdv_keys = db.session.execute(sdv_query.select()).keys()
-    sdv_values = db.session.execute(sdv_query.select()).first()
-
-    wc_query = select(WC).where(WC.id == EDL.id_wc).where(EDL.id_logement == logement)
-    wc_keys = db.session.execute(wc_query.select()).keys()
-    wc_values = db.session.execute(wc_query.select()).first()
-    
-    Data = {"Information":None,
-            "Kitchenette":None,
-            "Salle de vie":None,
-            "Salle de bain":None,
-            "WC":None,
-            "Chambre":None,
-            "Autres":None}
-    
-    Values_and_keys = [ [information_keys, information_values],
-                        [kitchen_keys, kitchen_values],
-                        [sdv_keys, sdv_values],
-                        [sdb_keys, sdb_values],
-                        [wc_keys, wc_values],
-                        [chambre_keys, chambre_values],
-                        [autre_keys, autre_values] ]
-    
-    for i, cat in enumerate(Data.keys()):
-        Dtemp = dict()
-        for j, col in enumerate(Values_and_keys[i][0]):
-            if Values_and_keys[i][1] != None:
-                Dtemp[col] = Values_and_keys[i][1][j]
-        Data[cat] = Dtemp
-    return type_logement, Data
-
-def listCritere(logement):
-    type_logement, Data = getDataFromDatabase(logement)
-    if type_logement == 0:
-        return 'Chambre', Data
-    elif type_logement == 1:
-        return 'Studio', Data
-    else:
-        return 'Collocation', Data

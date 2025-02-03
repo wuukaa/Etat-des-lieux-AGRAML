@@ -1,0 +1,27 @@
+{% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
+
+{% block content %}
+
+<br>
+<h1>Liste des états des lieux</h1>
+<br>
+
+<ul class="list-group list-group-flush" id="list-chambres"></ul>
+{% for chambre in edl[1] %}
+        <li class="list-group-item">
+            <form action="/edl?id={{chambre.id}}" method="GET">
+                {% if chambre[1] %}
+                    <div  class="text-center">
+                    <button type="submit" class="btn btn-primary" name='id' value="{{chambre[0]}}">{{chambre[5] + ' ' + chambre[2] + ' ' + chambre[3]}}</button>
+                    </div>
+                {% else %}
+                    <div  class="text-center">
+                    <button type="submit" class="btn btn-secondary" name='id' value="{{chambre[0]}}">{{chambre[5] + ' ' + chambre[2] + ' ' + chambre[3]}}</button>
+                    </div>
+                {% endif %}
+            </form>
+        </li>
+{% endfor %}
+    </ul>
+
+{% endblock %}

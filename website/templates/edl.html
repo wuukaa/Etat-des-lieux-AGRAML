@@ -1,53 +1,64 @@
 {% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
 
 {% block content %}
-  
-Nous sommes ici en {{chambre}}, c'est un {{type}}<br>
-
-<legend>Information sur le logement</legend>
-
-<b>Type de logement:</b> {{Data["Information"]["id_logement"]}}<br>
-<b>Est occupé:</b> <input type="checkbox" id="scales" name="scales" {% if Data["Information"]["entree_sortie"] %} checked {% endif %} /><br>
-<b>Prenom:</b><input type="text" id="prenom" name="prenom" required minlength="4" maxlength="150" size="10" value="{{Data["Information"]["prenom"]}}"/><br>
-<b>Nom:</b> <input type="text" id="nom" name="nom" required minlength="4" maxlength="150" size="10" value="{{Data["Information"]["nom"]}}"/><br>
-<b>Mail:</b> <input type="email" id="email" pattern=".+@example\.com" size="30" required value="{{Data["Information"]["mail"]}}"/><br>
-<b>Date de l'EDL:</b> <input type="date" id="start" name="trip-start" value="{{Data["Information"]["date"]}}" min="2025-01-01" max="2030-12-31" /><br>
 <br>
-<form method="post">
+<h1>Modification de l'etat des lieux</h1>
+<br>
+
+<form method="post" name="{{Data["Information"]["id_logement"]}}">
+  <div class="list-group">
+  <legend class="list-group-item list-group-item-action active">Information sur le logement</legend>
+    <div class="list-group-item"><b>Type de logement: </b> {{type}}<br></div>
+    <div class="list-group-item"><b>Numéro de logement: </b> <input class="form-control" type="text" id="boquette" name="Information.id_logement" value="{{Data["Information"]["id_logement"]}}" disabled/><br></div>
+    <div class="list-group-item"><b>Prenom: </b><input class="form-control" type="text" id="prenom" name="Information.prenom" required minlength="4" maxlength="150" size="10" value="{{Data["Information"]["prenom"]}}"/><br></div>
+    <div class="list-group-item"><b>Nom: </b> <input class="form-control" type="text" id="nom" name="Information.nom" required minlength="4" maxlength="150" size="10" value="{{Data["Information"]["nom"]}}"/><br></div>
+    <div class="list-group-item"><b>Mail: </b> <input class="form-control" type="email" id="mail" name="Information.mail" size="30" required value="{{Data["Information"]["mail"]}}"/><br></div>
+    <div class="list-group-item"><b>Date de l'EDL: </b> <input class="form-control" type="date" id="start" name="Information.date" value="{{Data["Information"]["date"]}}" min="2023-01-01" max="2030-12-31" /><br></div>
+  </div>
+  <br>
 {% for critere in Data.keys() %}
     {%if critere == 'Information' %}
     {% elif Data[critere] != dict() %}
     <fieldset>
-        <legend>{{critere}}</legend>
-        <div>
+        <div class="list-group">
+        <legend class="list-group-item list-group-item-action active">{{critere}}</legend>
             {% for rub in Data[critere].keys(): %}
                 {% if rub != "id" %}
+                <div class="list-group-item">
                 <h5>-> {{rub}}</h5>
+                  <div class="btn-group btn-group-toggle" data-toggle="buttons">
                     {% for choix in [[0, 'Très mauvais '], [1, 'Mauvais '], [2, 'OK'], [3, 'Bon'], [4, 'Très bon'], [5, 'Neuf']] %}
                         {% if choix[0] == Data[critere][rub] %}
-                          <label class="radio">
+                          <label class="btn btn-secondary active">
                             <input type="radio" checked id={{choix[0]}} name="{{critere+"."+rub}}" value="{{choix[0]}}"/>
                             {{choix[1]}}
                           </label>
                         {% else %}
-                          <label class="radio">
+                          <label class="btn btn-secondary">
                             <input type="radio" id={{choix[0]}} name="{{critere+"."+rub}}" value="{{choix[0]}}"/>
                             {{choix[1]}}
                           </label>
                         {% endif %}
                     {% endfor %}
+                  </div>  
+                  </div>
                 {% endif %}
             {% endfor %}
-        </div>
+        </div> 
     {% endif %}
+    <br>
 {% endfor %}
-<div>
-    <button type="submit">Arrivé</button>
-    <button type="submit">Départ</button>
-    <button type="submit">Modifier</button>
-    <button type="submit">Supprimer</button>
+<br>
+  <div class="text-center">
+    <div class="btn-group">
+      <button class="btn btn-success" type="submit" name="Action" value="arrivee">Arrivée</button>
+      <button class="btn btn-success" type="submit" name="Action" value="depart">Départ</button>
+    </div>
+    <button class="btn btn-warning" type="submit" name="Action" value="modification">Modifier</button>
+    <button class="btn btn-danger" type="submit" name="Action" value="supprimer">Supprimer</button>
   </div>
   </fieldset>
   </li>
 </form>
+<br>
 {% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
+
+{% block content %}
+
+<br>
+<h1 class="display-4">Quel état des lieux?</h1>
+<br>
+
+<form action="/modification_etat_des_lieux" method="post">
+    {% for edl in Dict_edl %}
+        {% if edl.occupation %}
+            <button class="btn btn-info btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Arrivé(e) le " + edl.date + " procédé par " + edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</button>
+        {% else %}
+            <button class="btn btn-secondary btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Parti(e) le " + edl.date + " procédé par " + edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</button>
+        {% endif %}
+        <br>
+    {% endfor %}
+</form>
+{% endblock %}
