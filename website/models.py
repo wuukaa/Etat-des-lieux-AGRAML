@@ -32,18 +32,18 @@ class Element(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_categorie = db.Column(db.Integer, db.ForeignKey('categorie_element.id'))
     intitule = db.Column(db.String(100))
+    prix = db.Column(db.Float())
 
 class EDL(db.Model):
     __tablename__ = "edl"
     id = db.Column(db.Integer, primary_key=True)
     id_logement = db.Column(db.Integer, db.ForeignKey('logement.id'))
-    effectue_par = db.Column(db.Integer)
+    effectue_par = db.Column(db.Integer, db.ForeignKey('user.id'))
     occupation = db.Column(db.Boolean)
     date = db.Column(db.String(100))
     nom = db.Column(db.String(100))
     prenom = db.Column(db.String(100))
     mail = db.Column(db.String(200))
-
 
 class Valeur(db.Model):
     __tablename__ = "valeur"
@@ -52,3 +52,10 @@ class Valeur(db.Model):
     id_element = db.Column(db.Integer, db.ForeignKey('element.id'))
     valeur = db.Column(db.Integer, default=2)
     observation = db.Column(db.String(1000))
+
+class TypeEDL(db.Model):
+    __tablename__ = "type_edl"
+    id = db.Column(db.Integer, primary_key=True)
+    id_type_logement = db.Column(db.String(50))
+    id_element = db.Column(db.Integer, db.ForeignKey('element.id'))
+    actif = db.Column(db.Boolean)

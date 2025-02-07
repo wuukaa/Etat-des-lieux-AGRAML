@@ -1,0 +1,62 @@
+{% extends "base.html" %} {%block title %}Modification des élements{% endblock %}
+
+{% block content %}
+
+<br>
+<h1 class="display-4">Modification des élements</h1>
+<br>
+
+<form action="/modifier_elements?action=reload" method="post">
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <select name="id_categorie" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+                {% for cat in cat_keys %}
+                    <option value="{{cat.id}}">{{cat.intitule}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-outline-dark btn-lg">Actualiser</button>
+        </div>
+    </div>
+</div>
+</form>
+
+<br>
+
+{% if Elements != [] %}
+    <div class="row">
+        <div class="col">
+            <h3>Intitulé</h3>
+        </div>
+        <div class="col">
+              <h3>Prix</h3>
+        </div>
+    </div>
+
+<form action="/modifier_elements?action=save" method="post">
+    {% for element in Elements %}
+        <div class="row">
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Intitulé" name="{{element[0]}}.intitule" value="{{element[2]}}">
+            </div>
+            <div class="col">
+
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Prix" name="{{element[0]}}.prix" value="{{element[3]}}" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="basic-addon2">€</span>
+                    </div>
+                </div>
+                  
+            </div>
+        </div>
+    {% endfor %}
+<br>
+<button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+</form>
+
+{% endif %}
+
+{% endblock %}

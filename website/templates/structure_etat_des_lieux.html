@@ -1,0 +1,53 @@
+{% extends "base.html" %} {%block title %}Structure EDL{% endblock %}
+
+{% block content %}
+
+<br>
+<h1 class="display-4">Structure d'un état des lieux pour un type de logement</h1>
+<br>
+
+<form action="/structure_etat_des_lieux?action=reload" method="post" id="logement-selection">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <select id="structure-type-logement" name="id_type_logement" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+                    {% for type in type_logement %}
+                        {% if id_type == type.id %}
+                            <option value="{{type.id}}" selected>{{type.type}}</option>
+                        {% else %}
+                            <option value="{{type.id}}">{{type.type}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form action="/structure_etat_des_lieux?action=save&id_type={{id_type}}" method="post">
+<div class="form-check form-group">
+    {% for cat in Elements.keys() %}
+        <h3>{{cat}}</h3>
+        {% for elm in Elements[cat] %}
+            {% if Checks[elm[0]]%}
+                <input class="form-check-input" type="checkbox" name="{{elm[0]}}" id="defaultCheck1" checked>
+                <label class="form-check-label">
+                    {{elm[2]}}
+                </label>
+                <br>
+            {% else %}
+                <input class="form-check-input" type="checkbox" name="{{elm[0]}}" id="defaultCheck1">
+                <label class="form-check-label">
+                    {{elm[2]}}
+                </label>
+                <br>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</div>
+
+<br>
+<button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+</form>
+    
+{% endblock %}

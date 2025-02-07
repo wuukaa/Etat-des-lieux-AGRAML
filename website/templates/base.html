@@ -4,6 +4,8 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link href='/website/templates/fonts/zagoth.otf' rel='stylesheet' type='text/css'>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
         <link
           rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -42,13 +44,13 @@
                           Modifier
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                          <a class="dropdown-item" href="#">Éléments</a>
-                          <a class="dropdown-item" href="#">Catégories</a>
-                          <a class="dropdown-item" href="#">Logements</a>
-                          <a class="dropdown-item" href="#">Type de logements</a>
+                          <a class="dropdown-item" href="/modifier_elements">Éléments</a>
+                          <a class="dropdown-item" href="/modifier_categories">Catégories</a>
+                          <a class="dropdown-item" href="/modifier_logements">Logements</a>
+                          <a class="dropdown-item" href="/modification_types_logement">Type de logements</a>
                         </div>
                     </li>
-                    <a class="nav-item nav-link" id="structure" href="#">Structure</a>
+                    <a class="nav-item nav-link" id="structure" href="/structure_etat_des_lieux">Structure</a>
                     <a class="nav-item nav-link" id="historique" href="#">Historique</a>
                     <a class="nav-item nav-link" id="deconnexion" href="logout">Se déconnecter</a>
                     {% else %}
