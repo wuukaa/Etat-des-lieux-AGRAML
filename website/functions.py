@@ -3,6 +3,12 @@ from sqlalchemy import select, delete
 from .models import Logement, EDL, User, Valeur, Element, CategorieElement, TypeEDL, TypeLogement
 from . import db
 import time
+import random as rd
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
 
 class color:
     HEADER = '\033[95m'
@@ -478,7 +484,38 @@ def sortEDLbyDate():
         ListEDL.append(edl)
     return ListEDL
 
+# Fonction qui convertie la date en format lisible pour un français
 def convertDateFormat(d):
     dateSplit = d.split("-")
     return(dateSplit[2] + '/' + dateSplit[1] + '/' + dateSplit[0])
             
+def randomCodeGenerator():
+    texte = "azertyuiop^$qsdfghjklmù*µ£¤¨<>wxcvbn,;:!?./§%&é'(-è_çà)=1234567890°+~#}{[|`\^@]²"
+    lencode = 60
+    lentexte = len(texte)
+    code = ''
+    for i in range(lencode):
+        r = rd.randint(0, lentexte - 1)
+        code += texte[r]
+    return code
+
+# Fonction qui envoie un mail de confirmation à Riz au lait lors d'une inscription
+def SendConfirmationMail(code, id):
+    sender = "inscription@amnet.fr"
+    recipients = "lucas1.henry@live.fr"
+    password = "tlxm cgep cvfo xmuf"
+    msg = MIMEMultipart()
+    msg['Subject'] = "Confirmation d'inscription"
+    msg['From'] = sender
+    msg['To'] = recipients
+    body = f"""
+<body>
+    <a href="https://agraml.amnet.fr/confirmation?code={code}&id={id}">Activation!!! Click here</a>
+</body>
+"""
+    msg.attach(MIMEText(body, 'html'))
+   
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+        smtp_server.login(sender, password)
+        smtp_server.sendmail(sender, recipients, msg.as_string())
+    print(color.OKGREEN + "Mail de confirmation envoyé!" + color.ENDC)

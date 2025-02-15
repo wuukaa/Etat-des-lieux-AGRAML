@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from .functions import passWdCheck, userNmCheck
-from .models import User
+from .functions import passWdCheck, userNmCheck, randomCodeGenerator, SendConfirmationMail
+from .models import User, Activation
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
@@ -12,16 +12,14 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        print(username, password)
         user = User.query.filter_by(username = username).first()
-        print(user)
-        if user:
+        if user and user.active:
             if check_password_hash(user.password, password):
                 flash('Connexion réussite!', category = 'success')
                 login_user(user, remember = True)
                 return redirect(url_for('views.home'))
             else:
-                flash('Mauvais identifiants', category = 'error')
+                flash('Mauvais identifiants ou compte pas activé', category = 'error')
         else:
             flash('''Tu n'es pas dans la base de donnée''', category = 'error')
 
@@ -60,9 +58,25 @@ def signin():
         elif len(nom) == 0 or len(prenom) == 0:
             flash('Veuillez renseigner ton nom et/ou ton prénom.', category='error')
         else:
-            new_user = User(email = email, username = username, password = generate_password_hash(password1), nom = nom, prenom = prenom)
+            new_user = User(email = email, username = username, password = generate_password_hash(password1), nom = nom, prenom = prenom, active=False)
             db.session.add(new_user)
+            db.session.commit()
+            code = randomCodeGenerator()
+            id = new_user.id
+            SendConfirmationMail(code, id)
+            new_activation = Activation(id_user = id, code = code)
+            db.session.add(new_activation)
             db.session.commit()
             flash('Demande envoyée', category = 'success')
             return redirect(url_for('auth.login'))
     return render_template('sign_up.html', user = current_user)
+
+@auth.route('/confirmation', methods=['GET', 'POST'])
+def confirm():
+    code = request.args('code')
+    id = request.args('id')
+    demande = db.session.query(Activation).filter(Activation.code == code).filter(Activation.id_user == id).first()
+    if demande != None:
+        flash("oki")
+        print("56")
+    flash("Demande d'inscription confirmée", category='success')
