@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, request, flash, jsonify
+from flask import Blueprint, render_template, request, flash, redirect
 from flask_login import login_required, current_user
 from .models import CategorieElement, Element, TypeLogement, TypeEDL, Logement
 from . import db
 from sqlalchemy import select
-from .functions import getLogements, getEtat_des_lieux, getValeurs, editEDL, updateElement, updateStructure, getStructure, createEtat_des_lieux, getEDLInformation, getEDLNewInformation, deleteEDL, createEDL
+from .functions import getLogements, getEtat_des_lieux, getTypeLogements, getValeurs, editEDL, updateElement, updateStructure, getStructure, createEtat_des_lieux, getEDLInformation, getEDLNewInformation, deleteEDL, createEDL, updateTypeLogement, updateCategorie, updateLogements, sortEDLbyDate, convertDateFormat
 
 views = Blueprint('views', __name__)
 
@@ -11,26 +11,24 @@ views = Blueprint('views', __name__)
 @views.route('/', methods = ['GET', 'POST'])
 @login_required
 def home():
-    return render_template('accueil.html', user=current_user)
+    return render_template('accueil.html', user=current_user, BaseData=getTypeLogements())
 
 # Redirection vers la page d'accueil
 @views.route('/accueil', methods = ['GET'])
 def accueil():
-    return render_template('accueil.html', user=current_user)
+    return render_template('accueil.html', user=current_user, BaseData=getTypeLogements())
 
 # Redirection vers la page d'état des lieux
-@views.route('/etat_des_lieux', methods = ['GET'])
+@views.route('/etat_des_lieux', methods = ['GET', 'POST'])
 @login_required
 def etat_des_lieux():
     # On récupère l'identifiant associé au bouton du menu
-    # 0 -> Chambre , 1 -> Studio, 2 -> Collocation
-    type_logement = request.args.get('id')
-    Dict_logements = dict()
-    if type_logement is not None:
-        Dict_logements = getLogements(int(type_logement))
-    else:
-        flash('Il y a une erreur de redirection, utilise la barre de navigation!', category='error')
-    return render_template('liste_logements.html', user=current_user, Dict_logements = Dict_logements)
+    Logements = []
+    TypesLogements = db.session.query(TypeLogement).all()
+    if request.method == 'POST':
+        form = request.form
+        Logements = getLogements(form)
+    return render_template('liste_logements.html', len=len, str=str, user=current_user, TypesLogements=TypesLogements, Logements=Logements, BaseData=getTypeLogements())
 
 # Redirection vers la page de la liste des états des lieux pour un logement
 @views.route('/liste_etat_des_lieux', methods = ['GET', 'POST'])
@@ -47,7 +45,7 @@ def liste_etat_des_lieux():
         type_logement = type_values.type_logement
     else:
         flash('Il y a une erreur de redirection, utilise la barre de navigation!', category='error')
-    return render_template('liste_etat_des_lieux.html', type_logement=type_logement, id_logement=id_logement, user=current_user, Dict_edl = Dict_edl)
+    return render_template('liste_etat_des_lieux.html', BaseData=getTypeLogements(), type_logement=type_logement, id_logement=id_logement, user=current_user, Dict_edl = Dict_edl, convertDateFormat=convertDateFormat)
 
 # Redirection vers la page de modification d'état des lieux
 @views.route('/modification_etat_des_lieux', methods = ['GET', 'POST'])
@@ -58,7 +56,6 @@ def modification_etat_des_lieux():
     Valeurs = dict()
     if id_edl == 'nouveau':
         type_logement = request.args.get('type_logement')
-        print(type_logement, id_logement)
         Valeurs = createEtat_des_lieux(type_logement)
         EDLInformation = getEDLNewInformation(id_logement, current_user)
         creation = False
@@ -66,7 +63,7 @@ def modification_etat_des_lieux():
         Valeurs = getValeurs(id_edl)
         EDLInformation = getEDLInformation(id_edl)
         creation = True
-    return render_template('modification_etat_des_lieux.html', user=current_user, id_logement=id_logement, Valeurs = Valeurs, id_edl = id_edl, creation=creation, EDLInformation=EDLInformation)
+    return render_template('modification_etat_des_lieux.html', BaseData=getTypeLogements(), user=current_user, id_logement=id_logement, Valeurs = Valeurs, id_edl = id_edl, creation=creation, EDLInformation=EDLInformation)
 
 # Pour récupérer les détails des états des lieux
 @views.route('requete_etat_des_lieux', methods = ['POST', 'GET'])
@@ -80,7 +77,6 @@ def requete_etat_des_lieux():
         form = request.form
         action = request.form.get('0.action')
         if action == 'modification':
-            print(id_edl)
             editEDL(form, id_edl)
             flash('Les données ont été modifiés dans la base de données', category='success')
         elif action == 'supprimer':
@@ -91,8 +87,7 @@ def requete_etat_des_lieux():
             else:
                 occupe = True
             createEDL(form, occupe, id_logement, id_user)
-        Dict_logements = getLogements(id_type_logement) 
-        return render_template('liste_logements.html', user=current_user, Dict_logements = Dict_logements)
+    return redirect('etat_des_lieux', code=302)
 
 # Redirection vers la page de modification des éléments
 @views.route('modifier_elements', methods = ['GET', 'POST'])
@@ -101,36 +96,53 @@ def modifier_elements():
     action = request.args.get('action')
     cat_query = select(CategorieElement)
     cat_keys = db.session.execute(cat_query.select()).fetchall()
+    id_cat = 0
+    element_query = select(Element).where(Element.id_categorie == id_cat)
+    element_values = db.session.execute(element_query.select()).fetchall()
     if request.method == 'POST':
         form = request.form
         if action == 'reload':
             id_cat = request.form.get('id_categorie')
             element_query = select(Element).where(Element.id_categorie == id_cat)
             element_values = db.session.execute(element_query.select()).fetchall()
-            return render_template('modifier_elements.html', user=current_user, cat_keys=cat_keys, Elements = element_values)
+            return render_template('modifier_elements.html', BaseData=getTypeLogements(),id_cat = int(id_cat), user=current_user, cat_keys=cat_keys, Elements = element_values)
         if action == 'save':
-            updateElement(form)
-            flash('Changements sauvés', category='success')
-    return render_template('modifier_elements.html', user=current_user, cat_keys=cat_keys, Elements = [])
+            id_cat = request.args.get('id_categorie')
+            updateElement(form, id_cat)
+            element_query = select(Element).where(Element.id_categorie == id_cat)
+            element_values = db.session.execute(element_query.select()).fetchall()
+    return render_template('modifier_elements.html', BaseData=getTypeLogements(), user=current_user, cat_keys=cat_keys, id_cat=int(id_cat), Elements = element_values)
 
 # Redirection vers la page de modification des catégories
 @views.route('modifier_categories', methods = ['GET', 'POST'])
 @login_required
 def modifier_categories():
-    return render_template('modifier_categories.html', user=current_user)
+    if request.method == 'POST':
+        form = request.form
+        updateCategorie(form)
+    Categories = db.session.query(CategorieElement).all()
+    return render_template('modifier_categories.html', BaseData=getTypeLogements(), user=current_user, Categories=Categories)
 
 # Redirection vers la page de modification des logements
 @views.route('modifier_logements', methods = ['GET', 'POST'])
 @login_required
 def modifier_logements():
-    return render_template('modifier_logements.html', user=current_user)
+    if request.method == 'POST':
+        form = request.form
+        updateLogements(form)
+    Logements = db.session.query(Logement, TypeLogement).where(Logement.type_logement == TypeLogement.id).all()
+    TypesLogements = db.session.query(TypeLogement).all()
+    return render_template('modifier_logements.html', TypesLogements=TypesLogements, BaseData=getTypeLogements(), user=current_user, Logements=Logements)
 
 # Redirection vers la page de modification des types de logement
 @views.route('modification_types_logement', methods = ['GET', 'POST'])
 @login_required
 def modification_types_logement():
+    if request.method == 'POST':
+        form = request.form
+        updateTypeLogement(form)
     Types = db.session.query(TypeLogement).all()
-    return render_template('modification_types_logement.html', user=current_user, Types=Types)
+    return render_template('modification_types_logement.html', BaseData=getTypeLogements(), user=current_user, Types=Types)
 
 # Redirection vers la page de strucuration d'état des lieux
 @views.route('structure_etat_des_lieux', methods = ['GET', 'POST'])
@@ -183,7 +195,13 @@ def structure_etat_des_lieux():
                 Elements[categorie] = [elm[2:]]
             else:
                 Elements[categorie].append(elm[2:])
-    return render_template('structure_etat_des_lieux.html', user=current_user, type_logement=type_logement, Elements=Elements, type_edl=type_edl, id_type=int(id_type), Checks=Checks)
+    return render_template('structure_etat_des_lieux.html', BaseData=getTypeLogements(), user=current_user, type_logement=type_logement, Elements=Elements, type_edl=type_edl, id_type=int(id_type), Checks=Checks)
+
+@views.route('historique', methods = ['GET', 'POST'])
+@login_required
+def historique():
+    ListeEDL = sortEDLbyDate()
+    return render_template('historique.html', BaseData=getTypeLogements(), user=current_user, ListeEDL=ListeEDL, convertDateFormat=convertDateFormat)
 
 
 # @views.route('/delete-note', methods=['POST'])

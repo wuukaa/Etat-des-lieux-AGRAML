@@ -1,0 +1,19 @@
+{% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
+
+{% block content %}
+<br>
+<h1 class="display-4">Historique des états des lieux</h1>
+<br>
+
+<form action="/modification_etat_des_lieux" method="post">
+    {% for edl in ListeEDL %}
+        {% if edl.occupation %}
+            <button class="btn btn-info btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Arrivé(e) le " + convertDateFormat(edl.date) }}</button>
+        {% else %}
+            <button class="btn btn-secondary btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Parti(e) le " + convertDateFormat(edl.date) }}</button>
+        {% endif %}
+        <br>
+    {% endfor %}
+</form>
+
+{% endblock %}

@@ -14,7 +14,9 @@ class User(db.Model, UserMixin):
 class Logement(db.Model):
     __tablename__ = "logement"
     id = db.Column(db.Integer, primary_key=True)
-    numero = db.Column(db.String(10), unique=True)
+    batiment = db.Column(db.String(3))
+    etage = db.Column(db.Integer)
+    numero = db.Column(db.String(4))
     type_logement = db.Column(db.Integer)
 
 class TypeLogement(db.Model):

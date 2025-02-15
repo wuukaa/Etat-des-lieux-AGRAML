@@ -6,18 +6,20 @@
 <h1 class="display-4">Modification des élements</h1>
 <br>
 
-<form action="/modifier_elements?action=reload" method="post">
+<form action="/modifier_elements?action=reload" id="selection" method="post">
 <div class="container">
     <div class="row">
         <div class="col">
-            <select name="id_categorie" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+            <h3>Catégorie</h3>
+            <select name="id_categorie" id="select-cat" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
                 {% for cat in cat_keys %}
-                    <option value="{{cat.id}}">{{cat.intitule}}</option>
+                    {% if cat.id == id_cat %}
+                        <option selected value="{{cat.id}}">{{cat.intitule}}</option>
+                    {% else %}
+                        <option value="{{cat.id}}">{{cat.intitule}}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
-        </div>
-        <div class="col">
-            <button type="submit" class="btn btn-outline-dark btn-lg">Actualiser</button>
         </div>
     </div>
 </div>
@@ -25,7 +27,6 @@
 
 <br>
 
-{% if Elements != [] %}
     <div class="row">
         <div class="col">
             <h3>Intitulé</h3>
@@ -35,7 +36,7 @@
         </div>
     </div>
 
-<form action="/modifier_elements?action=save" method="post">
+<form action="/modifier_elements?action=save&id_categorie={{id_cat}}" method="post">
     {% for element in Elements %}
         <div class="row">
             <div class="col">
@@ -53,10 +54,29 @@
             </div>
         </div>
     {% endfor %}
+    <div class="row">
+        <div class="col">
+            <input type="text" class="form-control" placeholder="Intitulé du nouvel élement" name="newitem.intitule">
+        </div>
+        <div class="col">
+
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Prix du nouvel élement" name="newitem.prix" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <span class="input-group-text" id="basic-addon2">€</span>
+                </div>
+            </div>
+              
+        </div>
+    </div>
 <br>
 <button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
 </form>
 
-{% endif %}
+
+<script
+          type="text/javascript"
+          src="{{ url_for('static', filename='select_element.js') }}"
+        ></script>
 
 {% endblock %}

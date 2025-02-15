@@ -9,9 +9,9 @@
 <form action="/modification_etat_des_lieux?type_logement={{type_logement}}&id_logement={{id_logement}}" method="post">
     {% for edl in Dict_edl %}
         {% if edl.occupation %}
-            <button class="btn btn-info btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Arrivé(e) le " + edl.date + " procédé par " + edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</button>
+            <button class="btn btn-info btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Arrivé(e) le " + convertDateFormat(edl.date) + " procédé par " + edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</button>
         {% else %}
-            <button class="btn btn-secondary btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Parti(e) le " + edl.date + " procédé par " + edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</button>
+            <button class="btn btn-secondary btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Parti(e) le " + convertDateFormat(edl.date) + " procédé par " + edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</button>
         {% endif %}
         <br>
     {% endfor %}

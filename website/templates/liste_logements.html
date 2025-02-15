@@ -6,10 +6,65 @@
 <h1 class="display-4">Quel logement?</h1>
 <br>
 
+<form method="post">
+    <div class="form-group">
+        <h4>Filtre</h4>
+          <div class="form-row">
+              <div class="form-row col">
+                <div class="form-group col-md-3">
+                  <label for="batiment">Bâtiment</label>
+                  <select id="batiment" name="batiment" class="form-control">
+                    {% for bat in ['-', 'A', 'B', 'C', 'D', 'E', 'F', 'TA', 'TB'] %}
+                      <option value="{{bat}}">{{bat}}</option>
+                    {% endfor %}
+                  </select>              </div>
+                <div class="form-group col-md-3">
+                  <label for="etage">Étage</label>
+                  <select id="etage" name="etage" class="form-control">
+                        <option value="-" selected>-</option>
+                    {% for etage in [0, 1, 2, 3, 4, 5, 6] %}
+                      <option value="{{etage}}">{{etage}}</option>
+                    {% endfor %}
+                  </select>            
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="inputType">Type</label>
+                  <select id="inputType" name="type" class="form-control">
+                        <option value="-" selected>-</option>
+                    {% for type in TypesLogements %}
+                        <option value="{{type.id}}">{{type.type}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+          </div>
+          <div class="form-row">
+            <div class="col">
+                <label for="prenom">Prénom</label>
+                <input type="text" id="prenom" name="prenom" class="form-control" placeholder="Prénom">
+            </div>
+            <div class="col">
+                <label for="nom">Nom</label>
+                <input type="text"id="nom" name="nom" class="form-control" placeholder="Nom">
+            </div>
+          </div>
+    </div>
+    <button type="submit" class="btn btn-outline-dark btn btn-block">Filtrer</button>
+</form>
+
+
+{% if Logements != [] %}
+<br>
+{% if len(Logements) == 1 %}
+<h4>Résultat</h4>
+{% else %}
+<h4>Résultats</h4>
+{% endif %}
 <form action="/liste_etat_des_lieux" method="post">
-    {% for logement in Dict_logements.keys() %}
-        <button class="btn btn-outline-success btn-lg btn-block" type="submit" name="id_logement" value="{{Dict_logements[logement]}}">{{logement}}</button>
+    {% for logement in Logements %}
+        <button class="btn btn-outline-success btn-lg btn-block" type="submit" name="id_logement" value="{{logement.id}}">{{logement.batiment + '.' + str(logement.etage) + '.' + logement.numero}}</button>
         <br>
     {% endfor %}
 </form>
+{% endif %}
 {% endblock %}

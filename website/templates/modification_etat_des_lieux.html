@@ -12,18 +12,18 @@
     <div class="list-group-item"><b>Type de logement: </b> <input class="form-control" type="text" id="boquette" name="Information.type_logement" value="{{EDLInformation.type_logement}}" disabled/><br></div>
     <div class="list-group-item"><b>Numéro de logement: </b> <input class="form-control" type="text" id="boquette" name="Information.logement" value="{{EDLInformation.logement}}" disabled/><br></div>
     <div class="list-group-item">
-        <b>Nom et prénom du membre de l'AGRAML: </b>
+        <b>Identité du membre de l'AGRAML: </b>
         <div class="input-group">
-            <input disabled type="text" class="form-control" type="text" id="nom" name="Information.nom_agraml" required minlength="4" maxlength="150" size="10" value="{{EDLInformation.nom_agraml}}" placeholder="Nom du membre de l'AGRAML">
             <input disabled type="text" class="form-control" type="text" id="prenom" name="Information.prenom_agraml" required minlength="4" maxlength="150" size="10" value="{{EDLInformation.prenom_agraml}}" placeholder="Prénom du membre de l'AGRAML">
+            <input disabled type="text" class="form-control" type="text" id="nom" name="Information.nom_agraml" required minlength="4" maxlength="150" size="10" value="{{EDLInformation.nom_agraml}}" placeholder="Nom du membre de l'AGRAML">
         </div>
         <br>
     </div>
     <div class="list-group-item">
-        <b>Nom et prénom du locataire: </b>
+        <b>Identité du locataire: </b>
         <div class="input-group">
-            <input type="text" class="form-control" type="text" id="nom" name="Information.nom" required minlength="4" maxlength="150" size="10" value="{{EDLInformation.nom}}" placeholder="Nom du locataire">
             <input type="text" class="form-control" type="text" id="prenom" name="Information.prenom" required minlength="4" maxlength="150" size="10" value="{{EDLInformation.prenom}}" placeholder="Prénom du locataire">
+            <input type="text" class="form-control" type="text" id="nom" name="Information.nom" required minlength="4" maxlength="150" size="10" value="{{EDLInformation.nom}}" placeholder="Nom du locataire">
         </div>
         <br>
     </div>
@@ -38,7 +38,7 @@
                     <h5>{{element}}</h5>
                 </div>
                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                    {% for choix in [[1, 'Mauvais état', 'danger'], [2, "Etat d'usage", 'warning'], [3, 'Bon état', 'secondary'], [4, 'Très bon état', 'success'], [5, 'Neuf', 'success']] %}
+                    {% for choix in [[1, 'Mauvais état', 'danger'], [2, "Etat d'usage", 'warning'], [3, 'Bon état', 'secondary'], [4, 'Très bon état', 'success'], [5, 'Neuf', 'primary']] %}
                         {% if choix[0] == Valeurs[categorie][element][0] %}
                           <label class="btn btn-outline-{{choix[2]}} active">
                             <input type="radio" checked id={{choix[0]}} name="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.valeur'}}" value="{{choix[0]}}"/>
@@ -74,6 +74,7 @@
         <button class="btn btn-danger" type="submit" name="0.action" value="supprimer">Supprimer</button>
     {% endif %}
 </div>
+<br>
 
 </form>
 

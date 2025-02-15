@@ -1,9 +1,104 @@
 {% extends "base.html" %} {%block title %}Modification des logements{% endblock %}
 
 {% block content %}
-
 <br>
 <h1 class="display-4">Modification des logements</h1>
 <br>
+
+<form method="post">
+<div class="form-group">
+  <ul class="list-group list-group-flush">
+    <h4></h4>
+    <h4>Logements existants</h4>
+    {% for logement in Logements %}
+    <li class="list-group-item">
+      <div class="form-row">
+        <div class="form-group col">
+          <div class="form-row">
+            <div class="form-group col-md-2">
+              <label for="batiment">Bâtiement</label>
+              <select id="batiment" name="{{logement.Logement.id}}.batiment" class="form-control">
+                {% for bat in ['A', 'B', 'C', 'D', 'E', 'F', 'TA', 'TB'] %}
+                  {% if bat == logement.Logement.batiment %}
+                    <option value="{{bat}}"selected>{{bat}}</option>
+                  {% else %}
+                    <option value="{{bat}}">{{bat}}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>              </div>
+            <div class="form-group col-md-2">
+              <label for="etage">Étage</label>
+              <select id="etage" name="{{logement.Logement.id}}.etage" class="form-control">
+                {% for etage in [0, 1, 2, 3, 4, 5, 6] %}
+                  {% if etage == logement.Logement.etage %}
+                    <option value="{{etage}}"selected>{{etage}}</option>
+                  {% else %}
+                    <option value="{{etage}}">{{etage}}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>            
+            </div>
+            <div class="form-group col-md-2">
+              <label for="num">Numéro</label>
+              <input type="text" class="form-control" id="num" name="{{logement.Logement.id}}.numero" placeholder="Numéro" value="{{logement.Logement.numero}}">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="inputType">Type</label>
+              <select id="inputType" name="{{logement.Logement.id}}.type" class="form-control">
+                {% for type in TypesLogements %}
+                    {% if type.id == logement.Logement.type_logement %}
+                        <option value="{{type.id}}" selected>{{type.type}}</option>
+                    {% else %}
+                        <option value="{{type.id}}">{{type.type}}</option>
+                    {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+    <h4></h4>
+    <h4>Nouveau logement</h4>
+    <li class="list-group-item">
+      <div class="form-row">
+        <div class="form-group col">
+          <div class="form-row">
+            <div class="form-group col-md-2">
+              <label for="batiment">Bâtiement</label>
+              <select id="batiment" name="nouveau.batiment" class="form-control">
+                {% for bat in ['A', 'B', 'C', 'D', 'E', 'F', 'TA', 'TB'] %}
+                  <option value="{{bat}}">{{bat}}</option>
+                {% endfor %}
+              </select>              </div>
+            <div class="form-group col-md-2">
+              <label for="etage">Étage</label>
+              <select id="etage" name="nouveau.etage" class="form-control">
+                {% for etage in [0, 1, 2, 3, 4, 5, 6] %}
+                  <option value="{{etage}}">{{etage}}</option>
+                {% endfor %}
+              </select>            
+            </div>
+            <div class="form-group col-md-2">
+              <label for="num">Numéro</label>
+              <input type="text" class="form-control" name="nouveau.numero" id="num" placeholder="Numéro" value="00">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="inputType">Type</label>
+              <select id="inputType" name="nouveau.type" class="form-control">
+                {% for type in TypesLogements %}
+                    <option value="{{type.id}}">{{type.type}}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
+</div>
+<button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+</form>
+
 
 {% endblock %}

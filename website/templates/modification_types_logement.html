@@ -6,14 +6,16 @@
 <h1 class="display-4">Modification des types de logements</h1>
 <br>
 
-<form>
-{% for type in Types %}
-<input class="form-control form-control-lg" type="text" id="type" name="{{type.id}}" value="{{type.type}}" placeholder="Nom">
-<br>
-{% endfor %}
-<input class="form-control form-control-lg" type="text" id="type" name="newtypeoflogement" value="" placeholder="Ajouter un type">
-<br>
-<button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+<form method="post">
+    <h4>Types de logement existants</h4>
+    {% for type in Types %}
+        <input class="form-control form-control-lg" type="text" id="type" name="{{type.id}}" value="{{type.type}}" placeholder="Nom">
+        <br>
+    {% endfor %}
+    <h4>Nouveau type de logement</h4>
+    <input class="form-control form-control-lg" type="text" id="type" name="newtypeoflogement" value="" placeholder="Ajouter un type">
+    <br>
+    <button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
 </form>
 
 {% endblock %}
