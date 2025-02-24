@@ -1,16 +1,19 @@
 {% extends "base.html" %} {%block title %}Authentification{% endblock %}
 
+
 {% block content %}
     <br>
+    <h1 class="display-4">Connexion</h1>
+    <br>
+
     <form method="post">
-        <h3 align="center">Se connecter</h3>
-        <div class="form-group">
-            <label for="username">Nom d'utilisateur</label>
+        <div class="mb-3 form-floating">
             <input type="text" class="form-control" name="username" placeholder="Nom d'utilisateur"/>
+            <label for="username">Nom d'utilisateur</label>
         </div>
-        <div class="form-group">
-            <label for="password">Mot de passe</label>
+        <div class="mb-3 form-floating">
             <input type="password" class="form-control" name="password" placeholder="Mot de passe"/>
+            <label for="password">Mot de passe</label>
         </div>
         <br />
         <button type="submit" class="btn btn-primary">Se connecter</button>

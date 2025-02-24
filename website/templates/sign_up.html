@@ -1,34 +1,54 @@
 {% extends "base.html" %} {%block title %}S'enregistrer{% endblock %}
 
 {% block content %}
+    <br>
+    <h1 class="display-4">Demande de création de compte</h1>
+    <br>
     <form method="POST">
-        <br>
-        <h3 align="center">S'enregistrer</h3>
-        <div class="form-group">
-            <label for="email">Adresse email</label>
-            <input type="email" class="form-control" name="email" placeholder="Email"/>
+        <div class="form-floating">
+            <div class="mb-3 form-floating">
+                <input id="email" type="email" class="form-control" name="email" placeholder="Email"/>
+                <label for="email">Adresse email</label>
+            </div>
+            <div class="mb-3 form-floating">
+                <input id="user" type="text" class="form-control" name="user" placeholder="Nom d'utilisateur"/>
+                <label for="user">Nom d'utilisateur</label>
+            </div>
+            <div class="mb-3 form-floating">
+                <input id="prenom" type="text" class="form-control" name="prenom" placeholder="Prénom"/>
+                <label for="prenom">Prénom</label>
+            </div>
+            <div class="mb-3 form-floating">
+                <input id="nom" type="text" class="form-control" name="nom" placeholder="Nom"/>
+                <label for="nom">Nom</label>
+            </div>
+            <div class="mb-3 form-floating">
+                <input id="password1" type="password" class="form-control" name="password1" placeholder="Mot de passe"/>
+                <label for="password1">Mot de passe</label>
+            </div>
+            <div class="mb-3 form-floating">
+                <input id="password2" type="password" class="form-control" name="password2" placeholder="Mot de passe"/>
+                <label for="password2">Confirmer le mot de passe</label>
+            </div>
+            <div class="list-group-item">
+                <p class="mt-2">Renseigne ta signature ci-dessous</p>
+                <div class="wrapper border border-2 rounded" style="background-color: rgb(244, 244, 244);">
+                    <canvas id="signature-pad" class="signature-pad" width=400 height=200></canvas>
+                </div>
+                <div>
+                    <button class="btn btn-outline-secondary mt-2 mb-3" type="button" id="clear">Effacer</button>
+                </div>
+                <input id="image" class="d-none" name="signature" value="{{user.signature}}">
+            </div>
         </div>
-        <div class="form-group">
-            <label for="user">Nom d'utilisateur</label>
-            <input type="text" class="form-control" name="user" placeholder="Nom d'utilisateur"/>
-        </div>
-        <div class="form-group">
-            <label for="user">Nom</label>
-            <input type="text" class="form-control" name="nom" placeholder="Nom"/>
-        </div>
-        <div class="form-group">
-            <label for="user">Prénom</label>
-            <input type="text" class="form-control" name="prenom" placeholder="Prénom"/>
-        </div>
-        <div class="form-group">
-            <label for="password1">Mot de passe</label>
-            <input type="password" class="form-control" name="password1" placeholder="Mot de passe"/>
-        </div>
-        <div class="form-group">
-            <label for="password2">Confirmer le mot de passe</label>
-            <input type="password" class="form-control" name="password2" placeholder="Mot de passe"/>
-        </div>
-        <br />
         <input type="submit" class="btn btn-primary" value="Valider">
     </form>
+
+    <script 
+          src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"
+        ></script>
+<script
+          type="text/javascript"
+          src="{{ url_for('static', filename='signup.js') }}"
+        ></script>
 {% endblock %}

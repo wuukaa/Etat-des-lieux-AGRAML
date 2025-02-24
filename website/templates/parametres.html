@@ -1,0 +1,78 @@
+{% extends "base.html" %} {%block title %}S'enregistrer{% endblock %}
+
+{% block content %}
+<br>
+<h1 class="display-4">Paramètre pour {{user.prenom}}</h1>
+<br>
+<h4>Thème</h4>
+<form action="/parametres?type=par" id="form_theme" method="post">
+    <h6>Contraste</h6>
+    <div class="list-group">
+        <div class="btn-group mb-3" role="group" id="theme" aria-label="Basic radio toggle button group">
+            {% if user.mode == 'dark' %}
+            <input type="radio" class="btn-check" onclick="updatePar();" value="dark" name="mode" id="dark" autocomplete="off" checked>
+            <label class="btn btn-outline-secondary" for="dark">Dark</label>
+        
+            <input type="radio" class="btn-check" onclick="updatePar();" value="light" name="mode" id="light" autocomplete="off">
+            <label class="btn btn-outline-light" for="light">Light</label>
+            {% else %}
+            <input type="radio" class="btn-check" onclick="updatePar();" value="dark" name="mode" id="dark" autocomplete="off">
+            <label class="btn btn-outline-secondary" for="dark">Dark</label>
+        
+            <input type="radio" class="btn-check" onclick="updatePar();" value="light" name="mode" id="light" autocomplete="off" checked>
+            <label class="btn btn-light" for="light">Light</label>
+            {% endif %}
+        </div>
+    </div>
+      <h6>Couleur d'accentuation</h6>
+    <div class="list-group">
+        <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
+            {% for i in [0,1,2,3,4] %}
+                {% if i == i_accent %}
+                    <input type="radio" class="btn-check" onclick="updatePar();" value="{{i}}" name="accent-color" id="{{ListeThemes[i]}}" autocomplete="off" checked>
+                    <label style="background-color: {{ListeThemes[i]}}" class="btn btn-outline-dark" for="{{ListeThemes[i]}}">Thème n°{{i+1}}</label>
+                {% else %}
+                    <input type="radio" class="btn-check" onclick="updatePar();" value="{{i}}" name="accent-color" id="{{ListeThemes[i]}}" autocomplete="off">
+                    <label style="background-color: {{ListeThemes[i]}}" class="btn btn-outline-dark" for="{{ListeThemes[i]}}">Thème n°{{i+1}}</label>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</form>
+
+<h4>Paramètres de comptes</h4>
+<form action="parametres?type=compte" method="POST">
+    <div class="mb-2 form-floating">
+        <input type="email" class="form-control" name="email" value="{{user.email}}" placeholder="Email"/>
+        <label for="email">Adresse email</label>
+    </div>
+    <div class="mb-2 form-floating">
+        <input type="text" class="form-control" name="prenom" value="{{user.prenom}}" placeholder="Prénom"/>
+        <label for="user">Prénom</label>
+    </div>
+    <div class="mb-3 form-floating">
+        <input type="text" class="form-control" name="nom" value="{{user.nom}}" placeholder="Nom"/>
+        <label for="user">Nom</label>
+    </div>
+    <div class="list-group-item">
+        <p class="mt-2">Renseigne ta signature ci-dessous</p>
+        <div class="wrapper border border-2 rounded" style="background-color: rgb(244, 244, 244);">
+            <canvas id="signature-pad" class="signature-pad" width=400 height=200></canvas>
+        </div>
+        <div>
+            <button class="btn btn-outline-secondary mt-2 mb-3" type="button" id="clear">Effacer</button>
+        </div>
+        <input id="image" class="d-none" name="signature" value="{{user.signature}}">
+    </div>
+    <div class="list-group">
+        <input type="submit" class="btn btn-success" value="Sauvegarder">
+    </div>
+</form>
+<script 
+          src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"
+        ></script>
+<script
+          type="text/javascript"
+          src="{{ url_for('static', filename='parametre_update.js') }}"
+        ></script>
+{% endblock %}

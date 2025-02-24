@@ -7,70 +7,59 @@
 <br>
 
 <form action="/modifier_elements?action=reload" id="selection" method="post">
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <h3>Catégorie</h3>
-            <select name="id_categorie" id="select-cat" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
-                {% for cat in cat_keys %}
-                    {% if cat.id == id_cat %}
-                        <option selected value="{{cat.id}}">{{cat.intitule}}</option>
-                    {% else %}
-                        <option value="{{cat.id}}">{{cat.intitule}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
+<div class="row">
+    <div class="col">
+        <h3>Catégorie</h3>
+        <select name="id_categorie" id="select-cat" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+            {% for cat in cat_keys %}
+                {% if cat.id == id_cat %}
+                    <option selected value="{{cat.id}}">{{cat.intitule}}</option>
+                {% else %}
+                    <option value="{{cat.id}}">{{cat.intitule}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
     </div>
 </div>
 </form>
 
 <br>
 
-    <div class="row">
-        <div class="col">
-            <h3>Intitulé</h3>
-        </div>
-        <div class="col">
-              <h3>Prix</h3>
-        </div>
-    </div>
+<h4>Élements existants</h4>
 
 <form action="/modifier_elements?action=save&id_categorie={{id_cat}}" method="post">
     {% for element in Elements %}
         <div class="row">
-            <div class="col">
-                <input type="text" class="form-control" placeholder="Intitulé" name="{{element[0]}}.intitule" value="{{element[2]}}">
-            </div>
-            <div class="col">
-
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Prix" name="{{element[0]}}.prix" value="{{element[3]}}" aria-describedby="basic-addon2">
-                    <div class="input-group-append">
-                        <span class="input-group-text" id="basic-addon2">€</span>
-                    </div>
+            <div class="input-group">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="intitule" name="{{element[0]}}.intitule" value="{{element[2]}}">
+                    <label for="intitule">Intitulé</label>
                 </div>
-                  
-            </div>
-        </div>
-    {% endfor %}
-    <div class="row">
-        <div class="col">
-            <input type="text" class="form-control" placeholder="Intitulé du nouvel élement" name="newitem.intitule">
-        </div>
-        <div class="col">
-
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Prix du nouvel élement" name="newitem.prix" aria-describedby="basic-addon2">
-                <div class="input-group-append">
+                <div class="input-group form-floating mb-3">
+                    <input type="text" class="form-control" id="prix" name="{{element[0]}}.prix" value="{{element[3]}}" aria-describedby="basic-addon2">
+                    <label for="prix">Prix</label>
                     <span class="input-group-text" id="basic-addon2">€</span>
                 </div>
             </div>
-              
+        </div>
+    {% endfor %}
+    <h4>Nouvel élément</h4>
+    <div class="row mb-3">
+        <div class="input-group">
+            <div class="form-floating mb-3">
+                <input placeholder="" type="text" id="intitule" class="form-control" name="newitem.intitule" value="">
+                <label for="intitule">Intitulé</label>
+            </div>
+            <div class="input-group form-floating mb-3">
+                <input placeholder="" type="text" class="form-control" id="prix" name="newitem.prix">
+                <label for="prix">Prix</label>
+                <span class="input-group-text" id="basic-addon2">€</span>
+            </div>
         </div>
     </div>
-<br>
-<button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+    <div class="list-group">
+        <button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+    </div>
 </form>
 
 

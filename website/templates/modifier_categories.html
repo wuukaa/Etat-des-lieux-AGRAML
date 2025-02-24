@@ -3,18 +3,21 @@
 {% block content %}
 
 <br>
-<h1 class="display-4">Modification des catégories</h1>
+<h1 class="display-4">Modification des catégories d'éléments</h1>
 <br>
 
 <form method="post">
+    <h4>Catégories existantes</h4>
     {% for cat in Categories %}
-        <input class="form-control form-control-lg" type="text" id="type" name="{{cat.id}}" value="{{cat.intitule}}" placeholder="Nom">
+        <input class="form-control form-control-lg" type="text" id="type" name="{{cat.id}}" value="{{cat.intitule}}" placeholder="Intitulé">
         <br>
     {% endfor %}
-    
-    <input class="form-control form-control-lg" type="text" id="type" name="newcatgeorie" value="" placeholder="Ajouter un type">
+    <h4>Nouvelle catégorie</h4>
+    <input class="form-control form-control-lg" type="text" id="type" name="newcatgeorie" value="" placeholder="Ajouter une catégorie">
     <br>
-    <button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+    <div class="list-group">
+        <button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+    </div>
 </form>
 
 {% endblock %}

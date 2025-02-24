@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from .functions import passWdCheck, userNmCheck, randomCodeGenerator, SendConfirmationMail
+from .functions import passWdCheck, userNmCheck, randomCodeGenerator, SendConfirmationMail, activePage
 from .models import User, Activation
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
@@ -24,7 +24,7 @@ def login():
             flash('''Tu n'es pas dans la base de donnée''', category = 'error')
 
 
-    return render_template('login.html', user=current_user)
+    return render_template('login.html', active=activePage(11), user=current_user)
 
 @auth.route('/logout')
 @login_required
@@ -41,6 +41,7 @@ def signin():
         username = request.form.get('user')
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
+        signature = request.form.get('signature')
         dbUser = User.query.filter_by(username = username).first()
         dbEmail = User.query.filter_by(email = email).first()
         if dbUser:
@@ -58,25 +59,66 @@ def signin():
         elif len(nom) == 0 or len(prenom) == 0:
             flash('Veuillez renseigner ton nom et/ou ton prénom.', category='error')
         else:
-            new_user = User(email = email, username = username, password = generate_password_hash(password1), nom = nom, prenom = prenom, active=False)
+            new_user = User(mode='dark', accent_color='rgb(6, 159, 47)', signature=signature, email = email, username = username, password = generate_password_hash(password1), nom = nom, prenom = prenom, active=False)
             db.session.add(new_user)
             db.session.commit()
             code = randomCodeGenerator()
             id = new_user.id
-            SendConfirmationMail(code, id)
+            SendConfirmationMail(code, id, new_user)
             new_activation = Activation(id_user = id, code = code)
             db.session.add(new_activation)
             db.session.commit()
             flash('Demande envoyée', category = 'success')
             return redirect(url_for('auth.login'))
-    return render_template('sign_up.html', user = current_user)
+    return render_template('sign_up.html', active=activePage(12), user = current_user)
 
 @auth.route('/confirmation', methods=['GET', 'POST'])
 def confirm():
-    code = request.args('code')
-    id = request.args('id')
+    code = request.args.get('code')
+    id = request.args.get('id')
+    print(id, code)
     demande = db.session.query(Activation).filter(Activation.code == code).filter(Activation.id_user == id).first()
     if demande != None:
         flash("oki")
-        print("56")
+        user = db.session.query(User).filter(User.id == id).first()
+        user.active = True
+        db.session.delete(demande)
+        db.session.commit()
     flash("Demande d'inscription confirmée", category='success')
+    return redirect('login')
+
+@auth.route('gestion_utilisateurs', methods=['GET','POST'])
+@login_required
+def gestion():
+    return render_template('Miaou!')
+
+@auth.route('parametres', methods=['GET','POST'])
+@login_required
+def parametres():
+    if current_user.mode == 'dark':
+        ListeThemes = ['rgb(28, 70, 107)', 'rgb(129, 22, 182)', 'rgb(161, 18, 32)', 'rgb(181, 115, 3)', 'rgb(6, 159, 47)']
+    else:
+        ListeThemes = ['rgb(140, 192, 239)', 'rgb(201, 141, 232)', 'rgb(239, 121, 133)', 'rgb(245, 204, 134)', 'rgb(135, 248, 165)']
+    if request.method == 'POST':
+        arg = request.args.get('type')
+        form = request.form
+        if arg == 'par':
+            current_user.mode = form['mode']
+            if current_user.mode == 'dark':
+                ListeThemes = ['rgb(28, 70, 107)', 'rgb(129, 22, 182)', 'rgb(161, 18, 32)', 'rgb(181, 115, 3)', 'rgb(6, 159, 47)']
+            else:
+                ListeThemes = ['rgb(140, 192, 239)', 'rgb(201, 141, 232)', 'rgb(239, 121, 133)', 'rgb(245, 204, 134)', 'rgb(135, 248, 165)']
+            current_user.accent_color = ListeThemes[int(form['accent-color'])]
+            db.session.commit()
+        if arg == 'compte':
+            current_user.email = form['email']
+            current_user.nom = form['nom']
+            current_user.prenom = form['prenom']
+            current_user.signature = form['signature']
+            db.session.commit()
+    i_accent = 0
+    for color in ListeThemes:
+        if color == current_user.accent_color:
+            break
+        i_accent += 1
+    return render_template('parametres.html', user=current_user, active=activePage(8), ListeThemes=ListeThemes, i_accent=i_accent)

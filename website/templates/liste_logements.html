@@ -3,68 +3,102 @@
 {% block content %}
 
 <br>
-<h1 class="display-4">Quel logement?</h1>
+<h1 class="display-4">Selectionne un logement</h1>
 <br>
 
 <form method="post">
-    <div class="form-group">
-        <h4>Filtre</h4>
-          <div class="form-row">
-              <div class="form-row col">
-                <div class="form-group col-md-3">
-                  <label for="batiment">Bâtiment</label>
-                  <select id="batiment" name="batiment" class="form-control">
-                    {% for bat in ['-', 'A', 'B', 'C', 'D', 'E', 'F', 'TA', 'TB'] %}
-                      <option value="{{bat}}">{{bat}}</option>
-                    {% endfor %}
-                  </select>              </div>
-                <div class="form-group col-md-3">
-                  <label for="etage">Étage</label>
-                  <select id="etage" name="etage" class="form-control">
-                        <option value="-" selected>-</option>
-                    {% for etage in [0, 1, 2, 3, 4, 5, 6] %}
-                      <option value="{{etage}}">{{etage}}</option>
-                    {% endfor %}
-                  </select>            
-                </div>
-                <div class="form-group col-md-6">
-                  <label for="inputType">Type</label>
-                  <select id="inputType" name="type" class="form-control">
-                        <option value="-" selected>-</option>
-                    {% for type in TypesLogements %}
-                        <option value="{{type.id}}">{{type.type}}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-              </div>
-          </div>
-          <div class="form-row">
-            <div class="col">
-                <label for="prenom">Prénom</label>
-                <input type="text" id="prenom" name="prenom" class="form-control" placeholder="Prénom">
-            </div>
-            <div class="col">
-                <label for="nom">Nom</label>
-                <input type="text"id="nom" name="nom" class="form-control" placeholder="Nom">
-            </div>
-          </div>
-    </div>
-    <button type="submit" class="btn btn-outline-dark btn btn-block">Filtrer</button>
+<h4>Filtre</h4>
+<div class="input-group mb-3">
+  <div class="form-floating col">
+    <select id="batiment" name="batiment" class="form-select">
+      {% for bat in ['-', 'A', 'B', 'C', 'D', 'E', 'F', 'TA', 'TB'] %}
+        {% if form.batiment == bat %}
+          <option value="{{bat}}" selected>{{bat}}</option>
+        {% else %}
+          <option value="{{bat}}">{{bat}}</option>
+        {% endif %}
+      {% endfor %}
+    </select>              
+    <label for="batiment">Bâtiment</label>
+  </div>
+  <div class="form-floating col">
+    <select id="etage" name="etage" class="form-select">
+          <option value="-" selected>-</option>
+      {% for etage in [0, 1, 2, 3, 4, 5, 6] %}
+        {% if form.etage == str(etage) %}
+          <option selected value="{{etage}}">{{etage}}</option>
+        {% else %}
+          <option value="{{etage}}">{{etage}}</option>
+        {% endif %}
+      {% endfor %}
+    </select>        
+    <label for="etage">Étage</label>    
+  </div>
+  <div class="form-floating col">
+    <select id="inputType" name="type" class="form-select">
+          <option value="-" selected>-</option>
+      {% for type in TypesLogements %}
+        {% if form.type == str(type.id) %}
+          <option selected value="{{type.id}}">{{type.type}}</option>
+        {% else %}
+          <option value="{{type.id}}">{{type.type}}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+    <label for="inputType">Type</label>
+  </div>
+</div>
+<div class="input-group mb-3">
+  <div class="form-floating col-md">
+      <input type="text" id="prenom" name="prenom" class="form-control" placeholder="Prénom" value="{{form.prenom}}">
+      <label for="prenom">Prénom</label>
+  </div>
+  <div class="form-floating col-md">
+      <input type="text"id="nom" name="nom" class="form-control" placeholder="Nom" value="{{form.nom}}">
+      <label for="nom">Nom</label>
+  </div>
+</div>
+<div class="d-grid row g-1">
+  {% if user.mode == 'dark' %}
+    <button type="submit" class="btn btn-outline-light btn-block">Filtrer</button>
+  {% else %}
+    <button type="submit" class="btn btn-outline-dark btn-block">Filtrer</button>
+  {% endif %}
+</div>
+
 </form>
 
-
-{% if Logements != [] %}
+{% if Logements %}
 <br>
+
 {% if len(Logements) == 1 %}
-<h4>Résultat</h4>
+  <h4>Résultat</h4>
 {% else %}
-<h4>Résultats</h4>
+  <h4>Résultats</h4>
 {% endif %}
+
 <form action="/liste_etat_des_lieux" method="post">
+  <div class="list-group">
     {% for logement in Logements %}
-        <button class="btn btn-outline-success btn-lg btn-block" type="submit" name="id_logement" value="{{logement.id}}">{{logement.batiment + '.' + str(logement.etage) + '.' + logement.numero}}</button>
-        <br>
+      <h4>
+        <button type="submit" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" name="id_logement" value="{{logement.Logement.id}}">
+          <div>
+            <strong>{{logement.Logement.batiment + '.' + str(logement.Logement.etage) + '.' + logement.Logement.numero}}</strong> <h5>{{logement.TypeLogement.type}}</h5>
+          </div>
+          {% if int(InfoLogements[logement.Logement.id]) > 0 %}
+            <span class="badge bg-primary rounded-pill">{{InfoLogements[logement.Logement.id]}}</span>
+          {% else %}
+            <span class="badge bg-secondary rounded-pill">{{InfoLogements[logement.Logement.id]}}</span>
+          {% endif %}
+        </button>
+      </h4>
     {% endfor %}
+  </div>
 </form>
+{% else %}
+<br>
+<h5><em>Rajoute des filtres pour selectionner un logement!
+  Il est posible que le filtre appliqué ne donne aucun résultat.
+</em></h5>
 {% endif %}
 {% endblock %}

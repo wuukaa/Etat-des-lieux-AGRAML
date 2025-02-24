@@ -7,10 +7,10 @@
 <br>
 
 <form action="/structure_etat_des_lieux?action=reload" method="post" id="logement-selection">
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <select id="structure-type-logement" name="id_type_logement" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+    <div class="row">
+        <div class="col-md">
+            <div class=" form-floating mb-3">
+                <select id="structure-type-logement" name="id_type_logement" class="form-select form-select-lg">
                     {% for type in type_logement %}
                         {% if id_type == type.id %}
                             <option value="{{type.id}}" selected>{{type.type}}</option>
@@ -19,6 +19,7 @@
                         {% endif %}
                     {% endfor %}
                 </select>
+                <label for="structure-type-logement">Type de logement</label>
             </div>
         </div>
     </div>
@@ -47,7 +48,12 @@
 </div>
 
 <br>
-<button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+<div class="list-group mb-4">
+    <button type="submit" name="save" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+</div>
+<div class="list-group">
+    <button type="submit" name="delete" class="btn btn-danger btn-lg btn-block">Supprimer</button>
+</div>
 </form>
 
 

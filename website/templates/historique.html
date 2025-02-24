@@ -6,14 +6,31 @@
 <br>
 
 <form action="/modification_etat_des_lieux" method="post">
-    {% for edl in ListeEDL %}
-        {% if edl.occupation %}
-            <button class="btn btn-info btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Arrivé(e) le " + convertDateFormat(edl.date) }}</button>
-        {% else %}
-            <button class="btn btn-secondary btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Parti(e) le " + convertDateFormat(edl.date) }}</button>
-        {% endif %}
-        <br>
-    {% endfor %}
+    <div class="list-group">
+        {% for edl in ListeEDL %}
+            {% if edl[1] == 0 %}
+                <button class="list-group-item list-group-item-action list-group-item-danger" type="submit" name="id_edl" value="{{edl[0].id}}.{{edl[0].id_logement}}">
+                    <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
+                    Suppression faite le {{edl[2]}}
+                </button>
+            {% elif edl[1] == 1 %}
+                <button class="list-group-item list-group-item-action list-group-item-warning" type="submit" name="id_edl" value="{{edl[0].id}}.{{edl[0].id_logement}}">
+                    <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
+                    Modification faite le {{edl[2]}}
+                </button>
+            {% elif edl[1] == 2 %}
+                <button class="list-group-item list-group-item-action list-group-item-success" type="submit" name="id_edl" value="{{edl[0].id}}.{{edl[0].id_logement}}">
+                    <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
+                    Arrivée le {{edl[2]}}
+                </button>
+            {% elif edl[1] == 3 %}
+                <button class="list-group-item list-group-item-action list-group-item-secondary" type="submit" name="id_edl" value="{{edl[0].id}}.{{edl[0].id_logement}}">
+                    <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
+                    Parti(e) le {{edl[2]}}
+                </button>
+            {% endif %}
+        {% endfor %}
+    </div>
 </form>
 
 {% endblock %}

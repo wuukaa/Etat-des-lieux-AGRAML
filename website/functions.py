@@ -1,8 +1,9 @@
 from flask import request, flash
 from sqlalchemy import select, delete
-from .models import Logement, EDL, User, Valeur, Element, CategorieElement, TypeEDL, TypeLogement
+from .models import *
 from . import db
 import time
+from datetime import datetime
 import random as rd
 import smtplib
 from email.mime.text import MIMEText
@@ -57,37 +58,42 @@ def getLogements(form):
     Logements = []
     batiment = form['batiment']
     if batiment != '-':
-        Logements = db.session.query(Logement).filter(Logement.batiment == batiment)
+        Logements = db.session.query(Logement, TypeLogement).filter(Logement.batiment == batiment)
         print(Logements)
     etage = form['etage']
     if etage != '-':
         if Logements != []:
             Logements = Logements.filter(Logement.etage == etage)
         else:
-            Logements = db.session.query(Logement).filter(Logement.etage == etage)
+            Logements = db.session.query(Logement, TypeLogement).filter(Logement.etage == etage)
     type = form['type']
     if type != '-':
         if Logements != []:
             Logements = Logements.filter(Logement.type_logement == type)
         else:
-            Logements = db.session.query(Logement).filter(Logement.type_logement == type)
+            Logements = db.session.query(Logement, TypeLogement).filter(Logement.type_logement == type)
     prenom = form['prenom']
     if prenom != '':
         if Logements != []:
             Logements = Logements.where(EDL.id_logement == Logement.id).filter(EDL.prenom == prenom)
         else:
-            Logements = db.session.query(Logement).where(EDL.id_logement == Logement.id).filter(EDL.prenom == prenom)
+            Logements = db.session.query(Logement, TypeLogement).where(EDL.id_logement == Logement.id).filter(EDL.prenom == prenom)
     nom = form['nom']
     if nom != '':
         if Logements != []:
             Logements = Logements.where(EDL.id_logement == Logement.id).filter(EDL.nom == nom)
         else:
-            Logements = db.session.query(Logement).where(EDL.id_logement == Logement.id).filter(EDL.nom == nom)
+            Logements = db.session.query(Logement, TypeLogement).where(EDL.id_logement == Logement.id).filter(EDL.nom == nom)
     if Logements != []:
-        Logements = Logements.all()
+        Logements = Logements.where(Logement.type_logement == TypeLogement.id).all()
     else:
-        Logements = db.session.query(Logement).all()
-    return Logements
+        Logements = db.session.query(Logement, TypeLogement).where(Logement.type_logement == TypeLogement.id).all()
+    InfoLogements = dict()
+    for logement in Logements:
+        id_logement = logement.Logement.id
+        nb_edl = db.session.query(EDL).where(EDL.id_logement == id_logement).where(EDL.supprime == False).count()
+        InfoLogements[id_logement] = nb_edl
+    return Logements, InfoLogements
 
 # Fonction qui récupère les information d'un utilisateur (user) en fonction de son id
 def getUser(id_user):
@@ -97,12 +103,15 @@ def getUser(id_user):
     User_information = dict()
     for i, col in enumerate(user_keys):
         if col != 'password':
-            User_information[col] = user_values[i]
+            if user_values:
+                User_information[col] = user_values[i]
+            else:
+                User_information[col] = 'Inexistant'
     return User_information
 
 # Fonction qui récupère la liste des EDL par logement spécifique
 def getEtat_des_lieux(id_logement):
-    edl_query = select(EDL).where(EDL.id_logement == id_logement)
+    edl_query = select(EDL).where(EDL.id_logement == id_logement).where(EDL.supprime == False)
     edl_keys = db.session.execute(edl_query.select()).keys()
     edl_values = db.session.execute(edl_query.select()).fetchall()
     EDLs = []
@@ -140,7 +149,6 @@ def getValeurs(id_edl):
             Valeurs[categorie] = {element : [val, observation, str(id)]}
         else:
             Valeurs[categorie][element] = [val, observation, str(id)]
-    print(Valeurs)
     return Valeurs
 
 # Fonction qui met à jour un EDL
@@ -161,6 +169,9 @@ def editEDL(form, id_edl):
             elif split[1] == 'date':
                 edl_line.date = form[line]
                 continue
+            continue
+        elif split[0] == 'signature':
+            edl_line.signature = form[line]
             continue
         id_valeur = int(split[0])
         if id_valeur != 0:
@@ -244,6 +255,8 @@ def updateStructure(type_logement, form):
     element_values = db.session.execute(element_query.select()).fetchall()
     element_dans_type = []
     for f in form:
+        if f == 'delete' or f == 'save':
+            continue
         print(int(f))
         element_dans_type.append(int(f))
     for elm in element_values:
@@ -278,14 +291,24 @@ def getEDLInformation(id_edl):
     logement = db.session.execute(logement_query.select()).first()
     type_logement_query = select(TypeLogement).where(logement.type_logement == TypeLogement.id)
     type_logement = db.session.execute(type_logement_query.select()).first()
+    if user:
+        nom = user.nom
+        prenom = user.prenom
+        signature_agraml = user.signature
+    else:
+        nom = 'Inexistant'
+        prenom = 'Inexsitant'
+        signature_agraml = ''
     Data = {'nom': edl.nom,
                  'prenom': edl.prenom,
                  'date': edl.date,
                  'mail': edl.mail,
-                 'nom_agraml': user.nom,
-                 'prenom_agraml': user.prenom,
+                 'nom_agraml': nom,
+                 'signature_agraml' : signature_agraml,
+                 'prenom_agraml': prenom,
                  'logement': logement.batiment + '.' + str(logement.etage) + '.' + logement.numero,
-                 'type_logement': type_logement.type}
+                 'type_logement': type_logement.type,
+                 'signature': edl.signature}
     
     return Data
 
@@ -313,6 +336,13 @@ def getEDLNewInformation(id_logement, current_user):
              'type_logement': type_logement.type}
     return Data
 
+# Fonction pour cacher un EDL
+def hideEDL(id_edl):
+    edl = db.session.query(EDL).filter(EDL.id == id_edl).first()
+    edl.supprime = True
+    db.session.commit()
+
+# Utiliser cette fonction pour supprimer un EDL totalement
 def deleteEDL(id_edl):
     print(id_edl)
     p = True
@@ -330,18 +360,19 @@ def deleteEDL(id_edl):
 
 # Fonction qui créer un EDL
 def createEDL(form, occupe, id_logement, id_user):
-    new_edl = EDL(id_logement=id_logement,
+    new_edl = EDL(supprime = False,
+        id_logement=id_logement,
         effectue_par=id_user,
         occupation=occupe,
         date=form['Information.date'],
         nom=form['Information.nom'],
         prenom=form['Information.prenom'],
-        mail=form['Information.mail'])
+        mail=form['Information.mail'],
+        signature=form['signature'])
     db.session.add(new_edl)
     db.session.commit()
     id_edl = new_edl.id
     Valeurs = dict()
-    print(form)
     for key in form.keys():
         key_split = key.split('.')
         key_id = key_split[0]
@@ -363,6 +394,7 @@ def createEDL(form, occupe, id_logement, id_user):
                 db.session.add(new_valeur)
     db.session.commit()            
     print(f"{color.WARNING}Information: {color.OKBLUE}L'EDL n°{id_edl} a été ajouté ainsi que ses informations associées{color.ENDC}")
+    return new_edl.id
 
 # Fonction qui met à jour les types de logement
 def updateTypeLogement(form):
@@ -390,10 +422,22 @@ def updateCategorie(form):
     for key in form.keys():
         if key != 'newcatgeorie':
             line_db = db.session.query(CategorieElement).filter(CategorieElement.id == key).first()
-            line_db.intitule = form[key]
+            if form[key] != '':
+                if form[key] != line_db.intitule:
+                    line_db.intitule = form[key]
+                    flash(f'La catégorie {line_db.intitule} a bien été renommé', category='success')
+            else:
+                id_cat = line_db.id
+                check = db.session.query(Element).where(Element.id_categorie == id_cat).first()
+                if not check:
+                    flash(f'La catégorie {line_db.intitule} a été effacé de la base de données', category='success')
+                    db.session.delete(line_db)
+                else:
+                    flash(f'La catégorie {line_db.intitule} ne peut pas être effacé car un ou plusieurs éléments lui sont rattachés', category='error')
         else:
             if form[key] != '':
                 new_categorie = CategorieElement(intitule=form[key])
+                flash(f'La catégorie {new_categorie.intitule} a été rajouté à la base de données', category='success')
                 db.session.add(new_categorie)
                 db.session.commit()
     db.session.commit()
@@ -446,42 +490,12 @@ def updateLogements(form):
                     db.session.commit()
 
 def sortEDLbyDate():
-    def month(mm):
-        mm = int(mm)
-        if mm == 1:
-            return 0
-        elif mm == 2:
-            return 31
-        elif mm == 3:
-            return 31+28
-        elif mm == 4:
-            return 31+28+31
-        elif mm == 5:
-            return 31+28+31+30
-        elif mm == 6:
-            return 31+28+31+30+31
-        elif mm == 7:
-            return 31+28+31+30+31+30
-        elif mm == 8:
-            return 31+28+31+30+31+30+31
-        elif mm == 9:
-            return 31+28+31+30+31+30+31+31
-        elif mm == 10:
-            return 31+28+31+30+31+30+31+31+30
-        elif mm == 11:
-            return 31+28+31+30+31+30+31+31+30+31
-        elif mm == 12:
-            return 31+28+31+30+31+30+31+31+30+31+30
-    EDLs = db.session.query(EDL).all()
-    DictEDLage = dict()
-    for edl in EDLs:
-        splitDate = edl.date.split("-")
-        age = int(splitDate[0]) * 365 + month(splitDate[1]) + int(splitDate[2])
-        DictEDLage[int(edl.id)] = age
+    Histo = db.session.query(Historique).order_by(Historique.date).all()
     ListEDL = []
-    for id_edl in sorted(DictEDLage.items(), key=lambda x:x[1]):
-        edl = db.session.query(EDL).filter(EDL.id == id_edl[0]).first()
-        ListEDL.append(edl)
+    for edl in Histo:
+        edl_select = db.session.query(EDL).filter(EDL.id == edl.id_edl).first()
+        ListEDL.append([edl_select, edl.action, datetime.fromtimestamp(int(edl.date))])
+    ListEDL.reverse()
     return ListEDL
 
 # Fonction qui convertie la date en format lisible pour un français
@@ -490,7 +504,7 @@ def convertDateFormat(d):
     return(dateSplit[2] + '/' + dateSplit[1] + '/' + dateSplit[0])
             
 def randomCodeGenerator():
-    texte = "azertyuiop^$qsdfghjklmù*µ£¤¨<>wxcvbn,;:!?./§%&é'(-è_çà)=1234567890°+~#}{[|`\^@]²"
+    texte = "azertyuiopqsdfghjklmwxcvbn1234567890"
     lencode = 60
     lentexte = len(texte)
     code = ''
@@ -500,7 +514,7 @@ def randomCodeGenerator():
     return code
 
 # Fonction qui envoie un mail de confirmation à Riz au lait lors d'une inscription
-def SendConfirmationMail(code, id):
+def SendConfirmationMail(code, id, user):
     sender = "inscription@amnet.fr"
     recipients = "lucas1.henry@live.fr"
     password = "tlxm cgep cvfo xmuf"
@@ -508,9 +522,16 @@ def SendConfirmationMail(code, id):
     msg['Subject'] = "Confirmation d'inscription"
     msg['From'] = sender
     msg['To'] = recipients
+    prenom = user.prenom
+    nom = user.nom
+    mail = user.email
     body = f"""
 <body>
-    <a href="https://agraml.amnet.fr/confirmation?code={code}&id={id}">Activation!!! Click here</a>
+    <h2>Activation d'un nouveau compte pour <b>agraml.amnet.fr</b></h2>
+
+    <p>Voici le lien d'activation du compte de {prenom} {nom}, asssocié à l'adresse mail {mail}
+    <br>
+    <a href="http://agraml.amnet.fr/confirmation?code={code}&id={id}">Activation du compte</a>
 </body>
 """
     msg.attach(MIMEText(body, 'html'))
@@ -519,3 +540,24 @@ def SendConfirmationMail(code, id):
         smtp_server.login(sender, password)
         smtp_server.sendmail(sender, recipients, msg.as_string())
     print(color.OKGREEN + "Mail de confirmation envoyé!" + color.ENDC)
+
+# Fonction qui determine quelle page est active pour le menu en haut
+def activePage(id):
+    len = 14
+    active = len * ['']
+    active[id] = 'active'
+    return active
+
+def deleteStructure(id_type):
+    Lines = db.session.query(TypeEDL).where(TypeEDL.id_type_logement == id_type).all()
+    for line in Lines:
+        db.session.delete(line)
+    db.session.commit()
+
+# Fonction qui gère l'historique des actions
+# 0 -> supprimé ; 1 -> modif ; 2 -> arrivé ; 3 -> départ
+def appendHistorique(id_edl, action):
+    date = int(time.time())
+    new_event = Historique(id_edl=id_edl, action=action, date = date)
+    db.session.add(new_event)
+    db.session.commit()

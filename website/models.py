@@ -5,12 +5,15 @@ from sqlalchemy import func, select
 class User(db.Model, UserMixin):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
+    active = db.Column(db.Boolean)
     nom = db.Column(db.String(150))
     prenom = db.Column(db.String(150))
     email = db.Column(db.String(150), unique=True)
     username = db.Column(db.String(20), unique=True)
     password = db.Column(db.String(2000))
-    active = db.Column(db.Boolean)
+    mode = db.Column(db.String(10))
+    accent_color = db.Column(db.String(10))
+    signature = db.Column(db.Text)
 
 class Activation(db.Model):
     __tablename__ = "activation"
@@ -46,6 +49,7 @@ class Element(db.Model):
 class EDL(db.Model):
     __tablename__ = "edl"
     id = db.Column(db.Integer, primary_key=True)
+    supprime = db.Column(db.Boolean)
     id_logement = db.Column(db.Integer, db.ForeignKey('logement.id'))
     effectue_par = db.Column(db.Integer, db.ForeignKey('user.id'))
     occupation = db.Column(db.Boolean)
@@ -53,6 +57,7 @@ class EDL(db.Model):
     nom = db.Column(db.String(100))
     prenom = db.Column(db.String(100))
     mail = db.Column(db.String(200))
+    signature = db.Column(db.Text)
 
 class Valeur(db.Model):
     __tablename__ = "valeur"
@@ -68,3 +73,10 @@ class TypeEDL(db.Model):
     id_type_logement = db.Column(db.String(50))
     id_element = db.Column(db.Integer, db.ForeignKey('element.id'))
     actif = db.Column(db.Boolean)
+
+class Historique(db.Model):
+    __tablename__ = "historique"
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(20))
+    id_edl = db.Column(db.Integer, db.ForeignKey('edl.id'))
+    action = db.Column(db.Integer)

@@ -3,18 +3,28 @@
 {% block content %}
 
 <br>
-<h1 class="display-4">Quel état des lieux?</h1>
+<h1 class="display-4">Selectionne un état des lieux</h1>
 <br>
 
 <form action="/modification_etat_des_lieux?type_logement={{type_logement}}&id_logement={{id_logement}}" method="post">
+    <div class="list-group">
     {% for edl in Dict_edl %}
         {% if edl.occupation %}
-            <button class="btn btn-info btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Arrivé(e) le " + convertDateFormat(edl.date) + " procédé par " + edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</button>
+            <button class="list-group-item list-group-item-action list-group-item-primary" type="submit" name="id_edl" value="{{edl.id}}">
+                <h3><b>{{edl.prenom + " " + edl.nom}}</b></h3>
+                {{"Arrivé(e) le " + convertDateFormat(edl.date) + " procédé par"}} <b>{{edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</b>
+            </button>
         {% else %}
-            <button class="btn btn-secondary btn-lg btn-block" type="submit" name="id_edl" value="{{edl.id}}">{{edl.prenom + " " + edl.nom}}<br>{{"Parti(e) le " + convertDateFormat(edl.date) + " procédé par " + edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</button>
+            <button class="list-group-item list-group-item-action list-group-item-secondary" type="submit" name="id_edl" value="{{edl.id}}">
+                <h3><b>{{edl.prenom + " " + edl.nom}}</b></h3>
+                {{"Parti(e) le " + convertDateFormat(edl.date) + " procédé par"}} <b>{{edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</b>
+            </button>
         {% endif %}
-        <br>
     {% endfor %}
-        <button class="btn btn-success btn-lg btn-block" type="submit" name="id_edl" value="nouveau">Nouveau</button>
+        <button class="list-group-item list-group-item-action list-group-item-success" type="submit" name="id_edl" value="nouveau">
+            <h4><b>Nouveau</b></h4>
+            Créer un état des lieux vierge pour ce logement selon le modèle défini
+        </button>
+    </div>
 </form>
 {% endblock %}

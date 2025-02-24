@@ -1,74 +1,121 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8" />
+<html lang="fr" data-bs-theme="{{user.mode}}">
+    <head>         
+        <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
-        <link
-          rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-          crossorigin="anonymous"
-        />
-        <link
-          rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-          crossorigin="anonymous"
-        />
         <title>{% block title %}{% endblock %}</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <style>
+            body {
+                padding-top: 56px;
+            }
+        </style>
+        <link href="{{ url_for('static', filename='css/sign.css')}}" rel="stylesheet">
     </head>
 
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbar">
-                <div class="navbar-nav">
-                    <a class="nav-item nav-link" id="home" href="accueil">Accueil</a>
-                    {% if user.is_authenticated %}
-                    <a class="nav-item nav-link" href="etat_des_lieux" aria-haspopup="true" aria-expanded="false">
-                            État des lieux
-                    </a>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Modifier
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                          <a class="dropdown-item" href="/modifier_categories">Catégories</a>
-                          <a class="dropdown-item" href="/modifier_elements">Éléments</a>
-                          <a class="dropdown-item" href="/modification_types_logement">Type de logement</a>
-                          <a class="dropdown-item" href="/modifier_logements">Logements</a>
-                        </div>
-                    </li>
-                    <a class="nav-item nav-link" id="structure" href="/structure_etat_des_lieux">Structure</a>
-                    <a class="nav-item nav-link" id="historique" href="/historique">Historique</a>
-                    <a class="nav-item nav-link" id="deconnexion" href="logout">Se déconnecter</a>
-                    {% else %}
-                    <a class="nav-item nav-link" id="login" href="login">Se connecter</a>
-                    <a class="nav-item nav-link" id="signUp" href="sign-up">S'enregistrer</a>
-                    {% endif %}
+        {% if user.is_authenticated %}
+        <nav class="navbar navbar-expand-lg fixed-top" style="background-color: {{user.accent_color}}">
+        {% else %}
+        <nav class="navbar navbar-expand-lg fixed-top" style="background-color: #bdbde2">
+        {% endif %}
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">AGRAML</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link {{active[0]}}" aria-current="page" href="/accueil">Accueil</a>
+                        </li>
+                        {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link {{active[1]}}" href="/etat_des_lieux">Etat des lieux</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{active[2]}}" href="/historique">Historique</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{active[3]+active[4]+active[5]+active[6]+active[7]}}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Modifier
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item {{active[3]}}" href="/modifier_elements">Elements</a></li>
+                                <li><a class="dropdown-item {{active[4]}}" href="/modifier_categories">Catégories d'éléments</a></li>
+                                <li><a class="dropdown-item {{active[5]}}" href="/modifier_logements">Logements</a></li>
+                                <li><a class="dropdown-item {{active[6]}}" href="/modification_types_logement">Types de logement</a></li>                      
+                                <li><a class="dropdown-item {{active[7]}}" href="/structure_etat_des_lieux">Structure d'EDL</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{active[8]+active[9]+active[10]}}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Comptes
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item {{active[8]}}" href="/parametres">Paramètres</a></li>
+                                <li><a class="dropdown-item {{active[9]}}" href="/gestion_utilisateurs">Gestion des comptes</a></li>
+                                <li><a class="dropdown-item {{active[10]}}" href="/logout">Se déconnecter</a></li>
+                            </ul>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link {{active[11]}}" href="/login">S'authentifier</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{active[12]}}" href="/sign-up">Demande d'inscription</a>
+                        </li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
         </nav>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
+        <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+            <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+            </symbol>
+            <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+            </symbol>
+            <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </symbol>
+        </svg>
             {% for category, message in messages %}
                 {% if category == 'error' %}
-                <div class="alert alert-danger alter-dismissable fade show" rule="alert">
-                    {{ message }}
-                    <button type="button" class="close" data-dismiss="alert">
-                        <span aria_hidden="true">&times;</span>
-                    </button>
+                <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                    <div>
+                        {{ message }}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                {% else %}
-                <div class="alert alert-success alter-dismissable fade show" rule="alert">
-                    {{ message }}
-                    <button type="button" class="close" data-dismiss="alert">
-                        <span aria_hidden="true">&times;</span>
-                    </button>
+                {% elif category == 'success' %}
+                <div class="alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+                    <div>
+                        {{ message }}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% elif category == 'info' %}
+                <div class="alert alert-primary d-flex align-items-center alert-dismissible fade show" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                    <div>
+                        {{ message }}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% elif category == 'warning' %}
+                <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                    <div>                  
+                        {{ message }}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endif %}
             {% endfor %}
@@ -79,24 +126,18 @@
           {%block content %}
           {% endblock %}
         </div>
-        <script
-            src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-            crossorigin="anonymous"
-        ></script>
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-            crossorigin="anonymous"
-        ></script>
-        <script
-            src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-            crossorigin="anonymous"
-        ></script>
+
+        <footer class="footer mt-auto py-3">
+            <div class="container">
+              <span class="text-muted">Lucas Henry, 143Li223, copyright</span>
+            </div>
+        </footer>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         <script
           type="text/javascript"
           src="{{ url_for('static', filename='index.js') }}"
         ></script>
     </body>
 </html>
+<!-- phy'ss -->
