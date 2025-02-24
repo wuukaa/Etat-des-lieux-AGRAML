@@ -9,22 +9,22 @@
     <div class="list-group">
         {% for edl in ListeEDL %}
             {% if edl[1] == 0 %}
-                <button class="list-group-item list-group-item-action list-group-item-danger" type="submit" name="id_edl" value="{{edl[0].id}}.{{edl[0].id_logement}}">
+                <button class="list-group-item list-group-item-action list-group-item-danger" type="submit" name="id_edl" value="{{edl[0].id}}">
                     <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
                     Suppression faite le {{edl[2]}}
                 </button>
             {% elif edl[1] == 1 %}
-                <button class="list-group-item list-group-item-action list-group-item-warning" type="submit" name="id_edl" value="{{edl[0].id}}.{{edl[0].id_logement}}">
+                <button class="list-group-item list-group-item-action list-group-item-warning" type="submit" name="id_edl" value="{{edl[0].id}}">
                     <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
                     Modification faite le {{edl[2]}}
                 </button>
             {% elif edl[1] == 2 %}
-                <button class="list-group-item list-group-item-action list-group-item-success" type="submit" name="id_edl" value="{{edl[0].id}}.{{edl[0].id_logement}}">
+                <button class="list-group-item list-group-item-action list-group-item-success" type="submit" name="id_edl" value="{{edl[0].id}}">
                     <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
                     Arrivée le {{edl[2]}}
                 </button>
             {% elif edl[1] == 3 %}
-                <button class="list-group-item list-group-item-action list-group-item-secondary" type="submit" name="id_edl" value="{{edl[0].id}}.{{edl[0].id_logement}}">
+                <button class="list-group-item list-group-item-action list-group-item-secondary" type="submit" name="id_edl" value="{{edl[0].id}}">
                     <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
                     Parti(e) le {{edl[2]}}
                 </button>

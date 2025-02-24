@@ -28,6 +28,11 @@ numberList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 Rules = [specialList, upperCaseList, numberList]
 
+# Fonction qui convertie la date en format lisible pour un français
+def convertDateFormat(d: str) -> str:
+    dateSplit = d.split("-")
+    return(dateSplit[2] + '/' + dateSplit[1] + '/' + dateSplit[0])
+
 def getTypeLogements():
     typeLogements_query = select(TypeLogement)
     typeLogements = db.session.execute(typeLogements_query.select()).fetchall()
@@ -54,7 +59,7 @@ def userNmCheck(string):
     return True
 
 # Fonction qui récupère la liste de tous les logement selon le filtre
-def getLogements(form):
+def searchLogements(form: dict) -> list[dict]:
     Logements = []
     batiment = form['batiment']
     if batiment != '-':
@@ -88,43 +93,38 @@ def getLogements(form):
         Logements = Logements.where(Logement.type_logement == TypeLogement.id).all()
     else:
         Logements = db.session.query(Logement, TypeLogement).where(Logement.type_logement == TypeLogement.id).all()
-    InfoLogements = dict()
+
+    # Mise en forme de la liste des logements
+    ListeLogements = []
     for logement in Logements:
+        nom_logement = logement.Logement.batiment + '.' + str(logement.Logement.etage) + '.' + logement.Logement.numero
+        type_logement = logement.TypeLogement.type
         id_logement = logement.Logement.id
-        nb_edl = db.session.query(EDL).where(EDL.id_logement == id_logement).where(EDL.supprime == False).count()
-        InfoLogements[id_logement] = nb_edl
-    return Logements, InfoLogements
+        nb_edl = int(db.session.query(EDL).where(EDL.id_logement == id_logement).where(EDL.supprime == False).count())
+        ListeLogements.append({'id_logement': id_logement, 'nom_logement' : nom_logement, 'type_logement' : type_logement, 'nb_edl' : nb_edl})
+    return ListeLogements
 
 # Fonction qui récupère les information d'un utilisateur (user) en fonction de son id
-def getUser(id_user):
-    user_query = select(User).where(User.id == id_user)
-    user_keys = db.session.execute(user_query.select()).keys()
-    user_values = db.session.execute(user_query.select()).first()
-    User_information = dict()
-    for i, col in enumerate(user_keys):
-        if col != 'password':
-            if user_values:
-                User_information[col] = user_values[i]
-            else:
-                User_information[col] = 'Inexistant'
-    return User_information
+def getUser(id_user: int) -> dict:
+    QueryUser = db.session.query(User).where(User.id == id_user).first()
+    user = {'nom': QueryUser.nom, 'prenom': QueryUser.prenom}
+    return user
 
 # Fonction qui récupère la liste des EDL par logement spécifique
-def getEtat_des_lieux(id_logement):
-    edl_query = select(EDL).where(EDL.id_logement == id_logement).where(EDL.supprime == False)
-    edl_keys = db.session.execute(edl_query.select()).keys()
-    edl_values = db.session.execute(edl_query.select()).fetchall()
-    EDLs = []
-    for j, value in enumerate(edl_values):
-        Dict = dict()
-        user = getUser(edl_values[j][2])
-        for i, col in enumerate(edl_keys):
-            if col == 'effectue_par':
-                Dict[col] = user
-            else:
-                Dict[col] = value[i]
-        EDLs.append(Dict)
-    return EDLs
+def getListeEtatDesLieux(id_logement: int) -> list[dict]:
+    QueryEDL = db.session.query(EDL).filter(EDL.id_logement == id_logement).filter(EDL.supprime == False).all()
+    ListeEtatDesLieux = []
+    for edl in QueryEDL:
+        user = getUser(edl.effectue_par)
+        EDLi = {'id_edl' : edl.id,
+                   'occupation' : edl.occupation,
+                   'date' : convertDateFormat(edl.date),
+                   'nom' : edl.nom,
+                   'prenom' : edl.prenom,
+                   'agraml_nom': user['nom'],
+                   'agraml_prenom': user['prenom']}
+        ListeEtatDesLieux.append(EDLi)
+    return ListeEtatDesLieux
 
 # Fonction qui récupère les données d'un état des lieux en fonction de son id
 def getValeurs(id_edl):
@@ -266,7 +266,7 @@ def updateStructure(type_logement, form):
             append_or_edit(type_logement, int(elm[0]), False)
 
 # Création d'état des lieux vièrge selon le modele associé à un type de logement
-def createEtat_des_lieux(type_logement):
+def createEtatDesLieux(type_logement: int) -> dict:
     element_actif_query = select(TypeEDL).where(TypeEDL.id_type_logement == type_logement)
     element_actif_values = db.session.execute(element_actif_query.select()).fetchall()
     element_query = select(Element)
@@ -274,84 +274,74 @@ def createEtat_des_lieux(type_logement):
     Elements = dict()
     for act in element_actif_values:
         if act[3]:
-            cat_query = select(CategorieElement).where(CategorieElement.id == element_values[act[2]-1][1])
-            cat = db.session.execute(cat_query.select()).first().intitule
+            cat = db.session.query(CategorieElement).filter(CategorieElement.id == element_values[act[2]-1][1]).first().intitule
             if cat not in Elements.keys():
                 Elements[cat] = dict()
-            Elements[cat][element_values[act[2]-1][2]] = [3, None, str(act[2])] # Etat, Observation, ID element
+            Elements[cat][element_values[act[2]-1][2]] = [3, '', str(act[2])] # Etat, Observation, ID element
     return Elements
 
 # Fonction qui récupère les information d'un locataire selon l'id de l'EDL
-def getEDLInformation(id_edl):
-    edl_query = select(EDL).where(EDL.id == id_edl)
-    edl = db.session.execute(edl_query.select()).first()
-    user_query = select(User).where(User.id == edl.effectue_par)
-    user = db.session.execute(user_query.select()).first()
-    logement_query = select(Logement).where(edl.id_logement == Logement.id)
-    logement = db.session.execute(logement_query.select()).first()
-    type_logement_query = select(TypeLogement).where(logement.type_logement == TypeLogement.id)
-    type_logement = db.session.execute(type_logement_query.select()).first()
-    if user:
-        nom = user.nom
-        prenom = user.prenom
-        signature_agraml = user.signature
+def getEDLInformation(id_edl: int) -> dict:
+    QueryEDL = db.session.query(EDL).filter(EDL.id == id_edl).first()
+    QueryUser = db.session.query(User).filter(User.id == QueryEDL.effectue_par).first()
+    QueryLogement = db.session.query(Logement).filter(QueryEDL.id_logement == Logement.id).first()
+    QueryTypeLogement = db.session.query(TypeLogement).filter(QueryLogement.type_logement == TypeLogement.id).first()
+    if QueryUser:
+        nom = QueryUser.nom
+        prenom = QueryUser.prenom
+        signature_agraml = QueryUser.signature
     else:
         nom = 'Inexistant'
         prenom = 'Inexsitant'
         signature_agraml = ''
-    Data = {'nom': edl.nom,
-                 'prenom': edl.prenom,
-                 'date': edl.date,
-                 'mail': edl.mail,
-                 'nom_agraml': nom,
-                 'signature_agraml' : signature_agraml,
-                 'prenom_agraml': prenom,
-                 'logement': logement.batiment + '.' + str(logement.etage) + '.' + logement.numero,
-                 'type_logement': type_logement.type,
-                 'signature': edl.signature}
-    
-    return Data
+    EDLInformation = {'id_logement' : QueryLogement.id,
+            'supprime': QueryEDL.supprime,
+            'nom': QueryEDL.nom,
+            'prenom': QueryEDL.prenom,
+            'date': QueryEDL.date,
+            'mail': QueryEDL.mail,
+            'nom_agraml': nom,
+            'signature_agraml' : signature_agraml,
+            'prenom_agraml': prenom,
+            'logement': QueryLogement.batiment + '.' + str(QueryLogement.etage) + '.' + QueryLogement.numero,
+            'type_logement': QueryTypeLogement.type,
+            'signature': QueryEDL.signature}
+    return EDLInformation
 
-def getEDLNewInformation(id_logement, current_user):
-    def timeFormat(string):
+def getEDLNewInformation(id_logement: int, current_user: User) -> dict:
+    def timeFormat(string: str) -> str:
         if len(string) < 2:
             return f'0{string}'
         else:
             return string
-    logement_query = select(Logement).where(Logement.id == id_logement)
-    logement = db.session.execute(logement_query.select()).first()
-    type_logement_query = select(TypeLogement).where(logement.type_logement == TypeLogement.id)
-    type_logement = db.session.execute(type_logement_query.select()).first()
+    QueryLogement = db.session.query(Logement).filter(Logement.id == id_logement).first()
+    QueryTypeLogement = db.session.query(TypeLogement).filter(QueryLogement.type_logement == TypeLogement.id).first()
     Time = time.localtime()
     mon = timeFormat(str(Time.tm_mon))
     day = timeFormat(str(Time.tm_mday))
     date = f'{Time.tm_year}-{mon}-{day}'
-    Data = {'nom': '',
-             'prenom': '',
-             'date': date,
-             'mail': '',
-             'nom_agraml': current_user.nom,
-             'prenom_agraml': current_user.prenom,
-             'logement': logement.batiment + '.' + str(logement.etage) + '.' + logement.numero,
-             'type_logement': type_logement.type}
-    return Data
+    EDLInformation = {'id_logement': QueryLogement.id,
+            'date': date,
+            'nom_agraml': current_user.nom,
+            'prenom_agraml': current_user.prenom,
+            'logement': QueryLogement.batiment + '.' + str(QueryLogement.etage) + '.' + QueryLogement.numero,
+            'type_logement': QueryTypeLogement.type}
+    return EDLInformation
 
 # Fonction pour cacher un EDL
-def hideEDL(id_edl):
+def hideEDL(id_edl: int) -> ...:
     edl = db.session.query(EDL).filter(EDL.id == id_edl).first()
     edl.supprime = True
     db.session.commit()
 
-# Utiliser cette fonction pour supprimer un EDL totalement
-def deleteEDL(id_edl):
-    print(id_edl)
-    p = True
-    while p:
-        val = db.session.query(Valeur).where(Valeur.id_edl == id_edl).first()
-        if val != None:
-            db.session.delete(val)
-        else:
-            p = False
+# Utiliser cette fonction pour supprimer un EDL totalement (valeurs, historique et edl)
+def deleteEDL(id_edl: int) -> ...:
+    valeur = db.session.query(Valeur).filter(Valeur.id_edl == id_edl)
+    for val in valeur:
+        db.session.delete(val)
+    historique = db.session.query(Historique).filter(Historique.id_edl == id_edl).all()
+    for edl in historique:
+        db.session.delete(edl)
     edl = db.session.query(EDL).where(EDL.id == id_edl).first()
     db.session.delete(edl)
     db.session.commit()
@@ -359,7 +349,7 @@ def deleteEDL(id_edl):
     print(f"{color.WARNING}Information: {color.OKBLUE}L'EDL n°{id_edl} a été supprimé ainsi que ses informations associées{color.ENDC}")
 
 # Fonction qui créer un EDL
-def createEDL(form, occupe, id_logement, id_user):
+def createEDL(form: dict, occupe: bool, id_logement: int, id_user: int):
     new_edl = EDL(supprime = False,
         id_logement=id_logement,
         effectue_par=id_user,
@@ -497,11 +487,6 @@ def sortEDLbyDate():
         ListEDL.append([edl_select, edl.action, datetime.fromtimestamp(int(edl.date))])
     ListEDL.reverse()
     return ListEDL
-
-# Fonction qui convertie la date en format lisible pour un français
-def convertDateFormat(d):
-    dateSplit = d.split("-")
-    return(dateSplit[2] + '/' + dateSplit[1] + '/' + dateSplit[0])
             
 def randomCodeGenerator():
     texte = "azertyuiopqsdfghjklmwxcvbn1234567890"

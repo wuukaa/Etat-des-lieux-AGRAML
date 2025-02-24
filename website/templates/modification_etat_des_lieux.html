@@ -5,8 +5,7 @@
 <br>
 <h1 class="display-4">Modification de l'état des lieux</h1>
 <br>
-
-<form method="post" action="/requete_etat_des_lieux?id_edl={{id_edl}}&id_logement={{id_logement}}&user={{user.id}}&type_logement={{EDLInformation.type_logement}}">
+<form method="post" action="/requete_etat_des_lieux?id_edl={{id_edl}}&id_logement={{EDLInformation.id_logement}}">
 <div class="list-group">
     <li class="list-group-item list-group-item-success">
         <h4 class="mt-2">Information</h4>
@@ -114,14 +113,19 @@
     </div>
 </div>
 <br>
+
 <div class="text-center">
-    <div class="btn-group">
-        <button class="btn btn-success" type="submit" name="0.action" value="arrivee">Arrivée</button>
-        <button class="btn btn-success" type="submit" name="0.action" value="depart">Départ</button>
-    </div>
-    {% if creation %}
-        <button class="btn btn-warning" type="submit" name="0.action" value="modification">Modifier</button>
-        <button class="btn btn-danger" type="submit" name="0.action" value="supprimer">Supprimer</button>
+    {% if not EDLInformation.supprime %}
+        <div class="btn-group">
+            <button class="btn btn-success" type="submit" name="0.action" value="arrivee">Arrivée</button>
+            <button class="btn btn-success" type="submit" name="0.action" value="depart">Départ</button>
+        </div>
+        {% if not creation %}
+            <button class="btn btn-warning" type="submit" name="0.action" value="modification">Modifier</button>
+            <button class="btn btn-danger" type="submit" name="0.action" value="supprimer">Supprimer</button>
+        {% endif %}
+    {% else %}
+    <button class="btn btn-danger" type="submit" name="0.action" value="defsupp">Supprimer definitivement</button>
     {% endif %}
 </div>
 <br>

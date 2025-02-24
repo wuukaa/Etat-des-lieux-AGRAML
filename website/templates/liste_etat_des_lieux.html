@@ -6,18 +6,18 @@
 <h1 class="display-4">Selectionne un état des lieux</h1>
 <br>
 
-<form action="/modification_etat_des_lieux?type_logement={{type_logement}}&id_logement={{id_logement}}" method="post">
+<form action="/modification_etat_des_lieux?id_logement={{id_logement}}" method="post">
     <div class="list-group">
-    {% for edl in Dict_edl %}
+    {% for edl in ListeEtatDesLieux %}
         {% if edl.occupation %}
-            <button class="list-group-item list-group-item-action list-group-item-primary" type="submit" name="id_edl" value="{{edl.id}}">
-                <h3><b>{{edl.prenom + " " + edl.nom}}</b></h3>
-                {{"Arrivé(e) le " + convertDateFormat(edl.date) + " procédé par"}} <b>{{edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</b>
+            <button class="list-group-item list-group-item-action list-group-item-primary" type="submit" name="id_edl" value="{{edl.id_edl}}">
+                <h3><b>{{edl.prenom}} {{edl.nom}}</b></h3>
+                Arrivé(e) {{edl.date}} procédé par <b>{{edl.agraml_prenom}} {{edl.agraml_nom}}</b>
             </button>
         {% else %}
-            <button class="list-group-item list-group-item-action list-group-item-secondary" type="submit" name="id_edl" value="{{edl.id}}">
-                <h3><b>{{edl.prenom + " " + edl.nom}}</b></h3>
-                {{"Parti(e) le " + convertDateFormat(edl.date) + " procédé par"}} <b>{{edl.effectue_par.prenom + " " + edl.effectue_par.nom}}</b>
+            <button class="list-group-item list-group-item-action list-group-item-secondary" type="submit" name="id_edl" value="{{edl.id_edl}}">
+                <h3><b>{{edl.prenom}} {{edl.nom}}</b></h3>
+                Parti(e) le {{edl.date}} procédé par <b>{{edl.agraml_prenom}} {{edl.agraml_nom}}</b>
             </button>
         {% endif %}
     {% endfor %}
