@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from .functions import passWdCheck, userNmCheck, randomCodeGenerator, SendConfirmationMail, activePage
-from .models import User, Activation
+from .functions import passWdCheck, userNmCheck, activePage, getActivationCodeNewUser
+from ..models import User
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db
+from .. import db
 from flask_login import login_user, login_required, logout_user, current_user
 
-auth = Blueprint('auth', __name__)
+auth = Blueprint('auth', __name__, template_folder='../templates/auth')
 
 @auth.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -59,38 +59,44 @@ def signin():
         elif len(nom) == 0 or len(prenom) == 0:
             flash('Veuillez renseigner ton nom et/ou ton prénom.', category='error')
         else:
-            new_user = User(mode='dark', accent_color='rgb(6, 159, 47)', signature=signature, email = email, username = username, password = generate_password_hash(password1), nom = nom, prenom = prenom, active=False)
+            new_user = User(mode='dark',
+                            accent_color='rgb(6, 159, 47)',
+                            signature=signature,
+                            email = email,
+                            username = username,
+                            password = generate_password_hash(password1),
+                            nom = nom,
+                            prenom = prenom,
+                            active=False,
+                            max_item_par_page = 10)
             db.session.add(new_user)
             db.session.commit()
-            code = randomCodeGenerator()
-            id = new_user.id
-            SendConfirmationMail(code, id, new_user)
-            new_activation = Activation(id_user = id, code = code)
-            db.session.add(new_activation)
-            db.session.commit()
-            flash('Demande envoyée', category = 'success')
+            flash('Demande envoyée', category = 'info')
             return redirect(url_for('auth.login'))
     return render_template('sign_up.html', active=activePage(12), user = current_user)
 
 @auth.route('/confirmation', methods=['GET', 'POST'])
-def confirm():
-    code = request.args.get('code')
-    id = request.args.get('id')
-    print(id, code)
-    demande = db.session.query(Activation).filter(Activation.code == code).filter(Activation.id_user == id).first()
-    if demande != None:
-        flash("oki")
+@login_required
+def confirmation():
+    action = request.args.get('action')
+    id = request.args.get('id_user')
+    print(action, id)
+    if action == 'accepte':
         user = db.session.query(User).filter(User.id == id).first()
         user.active = True
-        db.session.delete(demande)
-        db.session.commit()
-    flash("Demande d'inscription confirmée", category='success')
-    return redirect('login')
+        flash("Demande d'inscription confirmée", category='info')
+    elif action == 'rejet':
+        user = db.session.query(User).filter(User.id == id).first()
+        db.session.delete(user)
+        flash("Demande d'inscription rejetée", category='info')
+    db.session.commit()
+    return redirect('confirmation.html')
 
-@auth.route('gestion_utilisateurs', methods=['GET','POST'])
+@auth.route('gestion_utilisateurs', methods=['GET', 'POST'])
 @login_required
-def gestion():
-    return render_template('Miaou!')
+def gestion_utilisateur():
+    ActivationCodeNewUser = getActivationCodeNewUser()
+    return render_template('gestion_utilisateurs.html', user=current_user, active=activePage(9), ActivationCodeNewUser=ActivationCodeNewUser)
 
 @auth.route('parametres', methods=['GET','POST'])
 @login_required
@@ -115,6 +121,7 @@ def parametres():
             current_user.nom = form['nom']
             current_user.prenom = form['prenom']
             current_user.signature = form['signature']
+            current_user.max_item_par_page = form['max_item_par_page']
             db.session.commit()
     i_accent = 0
     for color in ListeThemes:

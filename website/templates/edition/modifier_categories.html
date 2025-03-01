@@ -1,0 +1,20 @@
+{% extends "base.html" %} {%block title %}Modification des catégories{% endblock %}
+
+{% block content %}
+
+<br>
+<h1 class="display-4">Édition des catégories</h1>
+<br>
+
+<form method="post">
+    {% for cat in Categories %}
+        <input class="form-control form-control-lg" type="text" id="type" name="{{cat.id}}" value="{{cat.intitule}}" placeholder="Nom">
+        <br>
+    {% endfor %}
+    
+    <input class="form-control form-control-lg" type="text" id="type" name="newcatgeorie" value="" placeholder="Ajouter un type">
+    <br>
+    <button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+</form>
+
+{% endblock %}

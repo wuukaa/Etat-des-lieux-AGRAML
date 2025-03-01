@@ -3,9 +3,9 @@
 {% block content %}
 
 <br>
-<h1 class="display-4">Modification de l'état des lieux</h1>
+<h1 class="display-4">Édition de l'état des lieux</h1>
 <br>
-<form method="post" action="/requete_etat_des_lieux?id_edl={{id_edl}}&id_logement={{EDLInformation.id_logement}}">
+<form method="post" action="/requete_etat_des_lieux?id_edl={{id_edl}}&id_logement={{EDLInformation.id_logement}}" id="edl_form">
 <div class="list-group">
     <li class="list-group-item list-group-item-success">
         <h4 class="mt-2">Information</h4>
@@ -63,41 +63,67 @@
         </div>
     </div>
 
-    {% for categorie in Valeurs.keys() %}
+    {% for categorie in Etats.keys() %}
         <li class="list-group-item list-group-item-primary d-flex justify-content-between align-items-center">
             <h4 class="mt-2">{{categorie}}</h4>
         </li>
         <li class="list-group-item">
-            {% for element in Valeurs[categorie].keys() %}
+            {% for element in Etats[categorie] %}
                 <div class="col">
-                    <h5>{{element}}</h5>
+                    <h5>{{element.intitule}}</h5>
                 </div>
                 <div class="list-group">
                     <div class="btn-group mb-2" role="group" aria-label="Basic radio toggle button group">
-                        {% for choix in [[1, 'Mauvais état', 'danger'], [2, "Etat d'usage", 'warning'], [3, 'Bon état', 'secondary'], [4, 'Très bon état', 'success'], [5, 'Neuf', 'primary']] %}
-                            {% if choix[0] == Valeurs[categorie][element][0] %}
-                                <input type="radio" autocomplete="off" class="btn-check" checked id="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.valeur'}}{{choix[0]}}" name="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.valeur'}}" value="{{choix[0]}}"/>
-                                <label class="btn btn-outline-{{choix[2]}}" for="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.valeur'}}{{choix[0]}}"> 
-                                    {{choix[1]}}
+                        {% for etat in element.etat %}
+                            {% if etat.actif %}
+                                <input type="radio" autocomplete="off" class="btn-check" checked id="{{element.id}}.{{etat.valeur}}" name="{{element.id}}.{{categorie}}.{{element.intitule}}.valeur" value="{{etat.valeur}}"/>
+                                <label class="btn btn-outline-{{etat.couleur}}" for="{{element.id}}.{{etat.valeur}}"> 
+                                    {{etat.attribut}}
                                 </label>
                             {% else %}
-                                <input type="radio" autocomplete="off" class="btn-check" id="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.valeur'}}{{choix[0]}}" name="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.valeur'}}" value="{{choix[0]}}"/>
-                                <label class="btn btn-outline-{{choix[2]}}" for="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.valeur'}}{{choix[0]}}">
-                                    {{choix[1]}}
-                                </label>
+                            <input type="radio" autocomplete="off" class="btn-check" id="{{element.id}}.{{etat.valeur}}" name="{{element.id}}.{{categorie}}.{{element.intitule}}.valeur" value="{{etat.valeur}}"/>
+                            <label class="btn btn-outline-{{etat.couleur}}" for="{{element.id}}.{{etat.valeur}}"> 
+                                {{etat.attribut}}
+                            </label>
                             {% endif %}
                         {% endfor %}
                     </div>
                 </div>
-                <div class="form-floating">
-                    <input type="text" class="form-control" id="observation" name="{{Valeurs[categorie][element][2] + '.' + categorie + '.' + element + '.observation'}}" placeholder="Observation" value="{{Valeurs[categorie][element][1]}}"></input>
-                    <label for="observation">Observation</label>
+                <div class="row g-3">
+                    <div class="col-10">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="observation" name="{{element.id}}.{{categorie}}.{{element.intitule}}.observation" placeholder="Observation" value="{{element.observation}}"></input>
+                            <label for="observation">Observation</label>
+                        </div>
+                    </div>
+                    <div class="col flex">
+                        <div class=" form-floating">
+                            <select class="form-select" name="{{element.id}}.{{categorie}}.{{element.intitule}}.facturation" id="select-facturation">
+                            {% if element.facturation %}
+                                <option value="on" selected>Oui</option>
+                                <option value="off">Non</option>
+                            {% else %}
+                                <option value="on">Oui</option>
+                                <option value="off" selected>Non</option>
+                            {% endif %}
+                            </select>
+                            <label for="select-facturation">Facturation</label>
+                        </div>
+                    </div>
                 </div>
                 <br>
             {% endfor %}
-            </li>
+        </li>
     {% endfor %}
-
+    <li class="list-group-item list-group-item-info">
+        <h4 class="mt-2">Images</h4>
+    </li>
+    <li class="list-group-item">
+        <div id="file-div">
+            
+        </div>
+        <input type="file" class="form-control" id="file1">
+    </li>
     <li class="list-group-item list-group-item-warning d-flex justify-content-between align-items-center">
         <h4 class="mt-2">Signature</h4>
     </li>
@@ -120,7 +146,7 @@
             <button class="btn btn-success" type="submit" name="0.action" value="arrivee">Arrivée</button>
             <button class="btn btn-success" type="submit" name="0.action" value="depart">Départ</button>
         </div>
-        {% if not creation %}
+        {% if not edl_existant %}
             <button class="btn btn-warning" type="submit" name="0.action" value="modification">Modifier</button>
             <button class="btn btn-danger" type="submit" name="0.action" value="supprimer">Supprimer</button>
         {% endif %}

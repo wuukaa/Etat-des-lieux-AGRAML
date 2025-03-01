@@ -1,0 +1,22 @@
+<br>
+{% if ListeBoutton %}
+    <form method="get">
+        {% if id_logement %}
+            <input name="id_logement" class="d-none" value="{{id_logement}}">
+        {% endif %}
+        <div class="container text-center">
+            <p><em>Pagination</p></em>
+            <div class="btn-group me-2" role="group" aria-label="First group">
+                {% for Bouton in ListeBoutton %}
+                    {% if Bouton.active %}
+                        <button type="submit" name="pagination" value="{{Bouton.id_page}}" class="btn btn-primary">{{Bouton.identifiant}}</button>
+                    {% elif Bouton.identifiant == '...' %}
+                        <button class="btn btn-outline-secondary" disabled>{{Bouton.identifiant}}</button>
+                    {% else %}
+                        <button type="submit" name="pagination" value="{{Bouton.id_page}}" class="btn btn-outline-primary">{{Bouton.identifiant}}</button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </form>
+{% endif %}

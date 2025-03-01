@@ -20,7 +20,7 @@
         <nav class="navbar navbar-expand-lg fixed-top" style="background-color: #bdbde2">
         {% endif %}
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">AGRAML</a>
+                <a class="navbar-brand" href="#"><img style="max-height: 50px; max-width: 50px;" src="{{ url_for('static', filename='media/agraml.png') }}"></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -34,11 +34,14 @@
                             <a class="nav-link {{active[1]}}" href="/etat_des_lieux">État des lieux</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{active[13]}}" href="/interventions">Interventions</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{active[2]}}" href="/historique">Historique</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{active[3]+active[4]+active[5]+active[6]+active[7]}}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Modifier
+                                Édition
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item {{active[3]}}" href="/modifier_elements">Elements</a></li>

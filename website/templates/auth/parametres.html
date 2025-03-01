@@ -54,6 +54,18 @@
         <input type="text" class="form-control" name="nom" value="{{user.nom}}" placeholder="Nom"/>
         <label for="user">Nom</label>
     </div>
+    <div class="mb-3">
+        <label for="item-max">Nombre d'élements maximals par page</label>
+        <select class="form-select" name="max_item_par_page" id="item-max">
+            {% for nombre in [5, 10, 20, 30] %}
+                {% if nombre == user.max_item_par_page %}
+                    <option value="{{nombre}}" selected>{{nombre}}</option>
+                {% else %}
+                    <option value="{{nombre}}">{{nombre}}</option>
+                {% endif %}
+            {% endfor %}
+          </select>
+    </div>
     <div class="list-group-item">
         <p class="mt-2">Renseigne ta signature ci-dessous</p>
         <div class="wrapper border border-2 rounded" style="background-color: rgb(244, 244, 244);">

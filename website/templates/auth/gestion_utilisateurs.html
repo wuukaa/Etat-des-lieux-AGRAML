@@ -1,0 +1,31 @@
+{% extends "base.html" %} {%block title %}Gestion Utilisateur{% endblock %}
+
+{% block content %}
+<br>
+<h1>Gestion des utilisateurs</h1>
+<br>
+    {% for UtilisateurAttente in ActivationCodeNewUser %}
+        <div class="row">
+            <div class="input-group">
+                <div class="form-floating">
+                    <input disabled type="text" class="form-control" id="username" value="{{UtilisateurAttente.identifiant}}">
+                    <label for="username">Nom d'utilisateur</label>
+                </div>
+                <div class="input-group form-floating mb-3">
+                    <input disabled type="text" class="form-control" id="prenom" value="{{UtilisateurAttente.prenom}}">
+                    <label for="prenom">Prénom</label>
+                </div>
+                <div class="form-floating">
+                    <input disabled type="text" class="form-control" id="nom" value="{{UtilisateurAttente.nom}}">
+                    <label for="nom">Nom</label>
+                </div>
+                <div class="form-floating">
+                    <input disabled type="text" class="form-control" id="email" value="{{UtilisateurAttente.email}}">
+                    <label for="email">Adresse mail</label>
+                </div>
+                    <a style="margin-bottom: 16px;" class="btn btn-outline-success" role="button" href="/confirmation?id_user={{UtilisateurAttente.id}}&action=accepte">Accepter</a>
+                    <a style="margin-bottom: 16px;" class="btn btn-outline-warning" type="button" href="/confirmation?id_user={{UtilisateurAttente.id}}&action=rejet">Refuser</a>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

@@ -2,21 +2,27 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
+import uuid
 
 db = SQLAlchemy()
 DB_NAME = 'agraml.db'
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'iamgay143li223*&dlf'
+    secrey_key = uuid.uuid4().hex
+    app.config['SECRET_KEY'] = "meow" #secrey_key
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
 
-    from .views import views
-    from .auth import auth
+    from .blueprints.views import views
+    from .blueprints.auth import auth
+    from .blueprints.edition import edition
+    from .blueprints.edl import edl
 
     app.register_blueprint(views, url_prefix = '/')
     app.register_blueprint(auth, url_prefix = '/')
+    app.register_blueprint(edition, url_prefix = '/')
+    app.register_blueprint(edl, url_prefix = '/')
     
     from .models import User
 

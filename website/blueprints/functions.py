@@ -1,15 +1,11 @@
 from flask import request, flash
 from sqlalchemy import select, delete
-from .models import *
-from . import db
+from ..models import *
+from .. import db
 import time
+import math
 from datetime import datetime
-import random as rd
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from email.mime.application import MIMEApplication
-from email.mime.multipart import MIMEMultipart
+# from xhtml2pdf import pisa
 
 class color:
     HEADER = '\033[95m'
@@ -28,17 +24,21 @@ numberList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 Rules = [specialList, upperCaseList, numberList]
 
+# def convert_html_file_to_pdf(html_content, output_path):
+#     with open(output_path, 'wb') as pdf_file:
+#         pisa_status = pisa.CreatePDF(html_content, dest=pdf_file)
+    
+#     if pisa_status.err:
+#         print("An error occurred while creating the PDF.")
+#     else:
+#         print(f"PDF successfully created at {output_path}")
+
 # Fonction qui convertie la date en format lisible pour un français
 def convertDateFormat(d: str) -> str:
     dateSplit = d.split("-")
     return(dateSplit[2] + '/' + dateSplit[1] + '/' + dateSplit[0])
 
-def getTypeLogements():
-    typeLogements_query = select(TypeLogement)
-    typeLogements = db.session.execute(typeLogements_query.select()).fetchall()
-    return typeLogements
-
-def passWdCheck(string):
+def passWdCheck(string: str) -> bool:
     respect = [False, False, False]
     for character in string:
         for i, rulesList in enumerate(Rules):
@@ -50,7 +50,7 @@ def passWdCheck(string):
 
 nonAllowed = [' ', '-', 'é', 'à', 'ç', ',', ';', '=', ':']
 
-def userNmCheck(string):
+def userNmCheck(string: str) -> bool:
     if len(string) < 6:
         return False
     for character in string:
@@ -127,29 +127,32 @@ def getListeEtatDesLieux(id_logement: int) -> list[dict]:
     return ListeEtatDesLieux
 
 # Fonction qui récupère les données d'un état des lieux en fonction de son id
-def getValeurs(id_edl):
-    valeurs_query = select(Valeur).where(Valeur.id_edl == id_edl)
-    valeurs_keys = db.session.execute(valeurs_query.select()).keys()
-    valeurs_values = db.session.execute(valeurs_query.select()).fetchall()
-    Valeurs = dict()
-    for valeur in valeurs_values:
-        val = valeur[3]
-        observation = valeur[4]
-        id_element = valeur[2]
-        id = valeur[0]
-        element_query = select(Element).where(Element.id == id_element)
-        element_values = db.session.execute(element_query.select()).first()
-        if element_values != None:
-            element = element_values[2]
-            id_categorie = element_values[1]
-        categorie_query = select(CategorieElement).where(CategorieElement.id == id_categorie)
-        categorie_values = db.session.execute(categorie_query.select()).first()
-        categorie = categorie_values[1]
-        if categorie not in Valeurs.keys():
-            Valeurs[categorie] = {element : [val, observation, str(id)]}
+def getEtat(id_edl: int) -> dict[list[dict[int, str, list[dict[int, str, str]], str],],]:
+    # Fonction qui retourne un dictionnaire utile à l'affichage d'un etat pour le front end
+    def attributionEtat(valeur: int) -> list[dict[int, str, str]]:
+        EtatList = [{"valeur": 1, "attribut": 'Mauvais état', "couleur": 'danger', "actif": False},
+                    {"valeur": 2, "attribut": "Etat d'usage", "couleur": 'warning', "actif": False},
+                    {"valeur": 3, "attribut": 'Bon état', "couleur": 'secondary', "actif": False},
+                    {"valeur": 4, "attribut": 'Très bon état', "couleur": 'success', "actif": False},
+                    {"valeur": 5, "attribut": 'Neuf', "couleur": 'primary', "actif": False}]
+        EtatList[int(valeur)-1]["actif"] = True
+        return EtatList
+
+    QueryValeur = db.session.query(Valeur, Element, CategorieElement).where(Valeur.id_element == Element.id).where(Element.id_categorie == CategorieElement.id).filter(Valeur.id_edl == id_edl).all()
+    Etat = dict()
+    for Item in QueryValeur:
+        attributionEtatRelatif = attributionEtat(Item.Valeur.valeur)
+        intituleCategorie = Item.CategorieElement.intitule
+        EtatRelatif = {"id": Item.Element.id,
+                       "intitule": Item.Element.intitule,
+                       "etat": attributionEtatRelatif,
+                       "observation": Item.Valeur.observation,
+                       "facturation": Item.Valeur.facturation}
+        if intituleCategorie not in Etat.keys():
+            Etat[intituleCategorie] = [EtatRelatif]
         else:
-            Valeurs[categorie][element] = [val, observation, str(id)]
-    return Valeurs
+            Etat[intituleCategorie].append(EtatRelatif)
+    return Etat
 
 # Fonction qui met à jour un EDL
 def editEDL(form, id_edl):
@@ -265,20 +268,52 @@ def updateStructure(type_logement, form):
         else:
             append_or_edit(type_logement, int(elm[0]), False)
 
-# Création d'état des lieux vièrge selon le modele associé à un type de logement
-def createEtatDesLieux(type_logement: int) -> dict:
-    element_actif_query = select(TypeEDL).where(TypeEDL.id_type_logement == type_logement)
-    element_actif_values = db.session.execute(element_actif_query.select()).fetchall()
-    element_query = select(Element)
-    element_values = db.session.execute(element_query.select()).fetchall()
-    Elements = dict()
-    for act in element_actif_values:
-        if act[3]:
-            cat = db.session.query(CategorieElement).filter(CategorieElement.id == element_values[act[2]-1][1]).first().intitule
-            if cat not in Elements.keys():
-                Elements[cat] = dict()
-            Elements[cat][element_values[act[2]-1][2]] = [3, '', str(act[2])] # Etat, Observation, ID element
-    return Elements
+# Fonction qui donne la liste des éléments pour un type d'edl selon le modèle, est utilisée lorsque qu'on fait un nouveau edl
+def getTemplateEtatDesLieux(id_type_logement: int) -> dict[list[dict[int, str, list[dict[int, str, str]], str],],]:
+    EtatListParDefault = [{"valeur": 1, "attribut": 'Mauvais état', "couleur": 'danger', "actif": False},
+                {"valeur": 2, "attribut": "Etat d'usage", "couleur": 'warning', "actif": False},
+                {"valeur": 3, "attribut": 'Bon état', "couleur": 'secondary', "actif": True},
+                {"valeur": 4, "attribut": 'Très bon état', "couleur": 'success', "actif": False},
+                {"valeur": 5, "attribut": 'Neuf', "couleur": 'primary', "actif": False}]
+    QueryTypeEDL = db.session.query(TypeEDL).filter(TypeEDL.actif == True).filter(TypeEDL.id_type_logement == id_type_logement).all()
+    StructureEtatDesLieux = dict()
+    for Item in QueryTypeEDL:
+        ElementRelatif = db.session.query(Element).filter(Element.id == Item.id_element).first()
+        CategorieRelative = db.session.query(CategorieElement).filter(CategorieElement.id == ElementRelatif.id_categorie).first()
+        element_id = ElementRelatif.id
+        element_intitule = ElementRelatif.intitule
+        categorie_intitule = CategorieRelative.intitule
+        EtatRelatif = {"id": element_id,
+                       "intitule": element_intitule,
+                       "etat": EtatListParDefault,
+                       "observation": '',
+                       "facturation": False}
+        if categorie_intitule not in StructureEtatDesLieux.keys():
+            StructureEtatDesLieux[categorie_intitule] = [EtatRelatif]
+        else:
+            StructureEtatDesLieux[categorie_intitule].append(EtatRelatif)
+    return StructureEtatDesLieux
+
+# Fonction qui donne les information pour un edl, est utilisée lorsque qu'on fait un nouveau edl
+def getTemplateEtatDesLieuxInformation(id_logement: int, current_user: User) -> dict:
+    def timeFormat(string: str) -> str:
+        if len(string) < 2:
+            return f'0{string}'
+        else:
+            return string
+    QueryLogement = db.session.query(Logement).filter(Logement.id == id_logement).first()
+    QueryTypeLogement = db.session.query(TypeLogement).filter(QueryLogement.type_logement == TypeLogement.id).first()
+    Time = time.localtime()
+    mon = timeFormat(str(Time.tm_mon))
+    day = timeFormat(str(Time.tm_mday))
+    date = f'{Time.tm_year}-{mon}-{day}'
+    EDLInformation = {'id_logement': QueryLogement.id,
+            'date': date,
+            'nom_agraml': current_user.nom,
+            'prenom_agraml': current_user.prenom,
+            'logement': QueryLogement.batiment + '.' + str(QueryLogement.etage) + '.' + QueryLogement.numero,
+            'type_logement': QueryTypeLogement.type}
+    return EDLInformation
 
 # Fonction qui récupère les information d'un locataire selon l'id de l'EDL
 def getEDLInformation(id_edl: int) -> dict:
@@ -305,27 +340,7 @@ def getEDLInformation(id_edl: int) -> dict:
             'prenom_agraml': prenom,
             'logement': QueryLogement.batiment + '.' + str(QueryLogement.etage) + '.' + QueryLogement.numero,
             'type_logement': QueryTypeLogement.type,
-            'signature': QueryEDL.signature}
-    return EDLInformation
-
-def getEDLNewInformation(id_logement: int, current_user: User) -> dict:
-    def timeFormat(string: str) -> str:
-        if len(string) < 2:
-            return f'0{string}'
-        else:
-            return string
-    QueryLogement = db.session.query(Logement).filter(Logement.id == id_logement).first()
-    QueryTypeLogement = db.session.query(TypeLogement).filter(QueryLogement.type_logement == TypeLogement.id).first()
-    Time = time.localtime()
-    mon = timeFormat(str(Time.tm_mon))
-    day = timeFormat(str(Time.tm_mday))
-    date = f'{Time.tm_year}-{mon}-{day}'
-    EDLInformation = {'id_logement': QueryLogement.id,
-            'date': date,
-            'nom_agraml': current_user.nom,
-            'prenom_agraml': current_user.prenom,
-            'logement': QueryLogement.batiment + '.' + str(QueryLogement.etage) + '.' + QueryLogement.numero,
-            'type_logement': QueryTypeLogement.type}
+            'signature': ''} # QueryEDL.signature
     return EDLInformation
 
 # Fonction pour cacher un EDL
@@ -365,7 +380,6 @@ def createEDL(form: dict, occupe: bool, id_logement: int, id_user: int):
     Valeurs = dict()
     for key in form.keys():
         key_split = key.split('.')
-        key_id = key_split[0]
         if len(key_split) > 2:
             element = key_split[2]
             element_id = db.session.query(Element).where(Element.intitule == element).first().id
@@ -376,11 +390,14 @@ def createEDL(form: dict, occupe: bool, id_logement: int, id_user: int):
                 Valeurs[categorie] = dict()
             if champ == 'valeur':
                 valtemp = valeur
+            elif champ == 'observation':
+                obstemp = valeur
             else:
                 new_valeur = Valeur(id_edl = id_edl,
                        id_element = element_id,
                        valeur = valtemp,
-                       observation = valeur)
+                       observation = obstemp,
+                       facturation = True if valeur == 'on' else False)
                 db.session.add(new_valeur)
     db.session.commit()            
     print(f"{color.WARNING}Information: {color.OKBLUE}L'EDL n°{id_edl} a été ajouté ainsi que ses informations associées{color.ENDC}")
@@ -487,53 +504,15 @@ def sortEDLbyDate():
         ListEDL.append([edl_select, edl.action, datetime.fromtimestamp(int(edl.date))])
     ListEDL.reverse()
     return ListEDL
-            
-def randomCodeGenerator():
-    texte = "azertyuiopqsdfghjklmwxcvbn1234567890"
-    lencode = 60
-    lentexte = len(texte)
-    code = ''
-    for i in range(lencode):
-        r = rd.randint(0, lentexte - 1)
-        code += texte[r]
-    return code
-
-# Fonction qui envoie un mail de confirmation à Riz au lait lors d'une inscription
-def SendConfirmationMail(code, id, user):
-    sender = "inscription@amnet.fr"
-    recipients = "lucas1.henry@live.fr"
-    password = "tlxm cgep cvfo xmuf"
-    msg = MIMEMultipart()
-    msg['Subject'] = "Confirmation d'inscription"
-    msg['From'] = sender
-    msg['To'] = recipients
-    prenom = user.prenom
-    nom = user.nom
-    mail = user.email
-    body = f"""
-<body>
-    <h2>Activation d'un nouveau compte pour <b>agraml.amnet.fr</b></h2>
-
-    <p>Voici le lien d'activation du compte de {prenom} {nom}, asssocié à l'adresse mail {mail}
-    <br>
-    <a href="http://agraml.amnet.fr/confirmation?code={code}&id={id}">Activation du compte</a>
-</body>
-"""
-    msg.attach(MIMEText(body, 'html'))
-   
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-        smtp_server.login(sender, password)
-        smtp_server.sendmail(sender, recipients, msg.as_string())
-    print(color.OKGREEN + "Mail de confirmation envoyé!" + color.ENDC)
 
 # Fonction qui determine quelle page est active pour le menu en haut
-def activePage(id):
+def activePage(id: int) -> ...:
     len = 14
     active = len * ['']
     active[id] = 'active'
     return active
 
-def deleteStructure(id_type):
+def deleteStructure(id_type: str) -> ...:
     Lines = db.session.query(TypeEDL).where(TypeEDL.id_type_logement == id_type).all()
     for line in Lines:
         db.session.delete(line)
@@ -546,3 +525,64 @@ def appendHistorique(id_edl, action):
     new_event = Historique(id_edl=id_edl, action=action, date = date)
     db.session.add(new_event)
     db.session.commit()
+
+def getActivationCodeNewUser() -> list[dict[int, str, str, str, str],]:
+    QueryActivation = db.session.query(User).where(User.active == False).all()
+    ActivationCodeNewUser = []
+    for Item in QueryActivation:
+        ActivationCodeNewUserRelatif = {"id": Item.id,
+                                        "identifiant": Item.username,
+                                        "prenom": Item.prenom,
+                                        "nom": Item.nom,
+                                        "email": Item.email}
+        ActivationCodeNewUser.append(ActivationCodeNewUserRelatif)
+    return(ActivationCodeNewUser)
+
+# Fonction pour paginer les pages web, elle prend une liste ou un doctionnaire, la i^eme page et le nombre d'élément par page 
+def pagination(Item: list | dict, i_page: int, n_item_max: int) -> list[list | dict]:
+    def generateBouton(i_page: int, nom_page: int | str,  active: bool) -> dict[int, int, bool]:
+        return {"id_page": i_page, "identifiant": nom_page, "active": active}
+    n_page_max = 6
+    n_page = math.ceil((len(Item)) /n_item_max)
+    if n_page == 1:
+        return Item, None
+    elif Item == None or Item == [] or Item == dict():
+        return Item, None
+    if type(Item) == dict:
+        Scindage = [dict() for _ in range(n_page)]
+        for i, key in enumerate(Item.keys()):
+            pos = int(i/n_item_max)
+            Scindage[pos][key] = Item[key]
+    elif type(Item) == list:
+        Scindage = [list() for _ in range(n_page)]
+        for i in range(len(Item)):
+            pos = int(i/n_item_max)
+            Scindage[pos].append(Item[i])
+
+    # Génération de la liste des boutons de pagination en fonction du nombre de page
+    if n_page > n_page_max:
+        ListeBoutton = list()
+        if i_page < 4: 
+            for i in range(5):
+                ListeBoutton.append(generateBouton(i, i+1, True if i == i_page else False))
+            ListeBoutton.append(generateBouton(-1, '...', False))
+            ListeBoutton.append(generateBouton(n_page - 1, n_page, False))
+        elif i_page > n_page - 5 and i_page <= n_page:
+            ListeBoutton.append(generateBouton(0, 1, False))
+            ListeBoutton.append(generateBouton(-1, '...', False))
+            for i in range(5):
+                ListeBoutton.append(generateBouton(n_page - 5 + i, n_page - 4 + i, True if n_page - 5 + i == i_page else False))
+        else:
+            ListeBoutton = [generateBouton(0, 1, False),
+                            generateBouton(-1, '...', False),
+                            generateBouton(i_page - 2, i_page - 1, False),
+                            generateBouton(i_page - 1, i_page, False),
+                            generateBouton(i_page, i_page + 1, True),
+                            generateBouton(i_page + 1, i_page + 2, False),
+                            generateBouton(i_page + 2, i_page + 3, False),
+                            generateBouton(-1, '...', False),
+                            generateBouton(n_page - 1, n_page, False)]
+    else:
+        ListeBoutton = [generateBouton(i, i + 1, (True if i == i_page else False)) for i in range(n_page)]
+    return Scindage[i_page], ListeBoutton
+

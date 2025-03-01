@@ -14,12 +14,7 @@ class User(db.Model, UserMixin):
     mode = db.Column(db.String(10))
     accent_color = db.Column(db.String(10))
     signature = db.Column(db.Text)
-
-class Activation(db.Model):
-    __tablename__ = "activation"
-    id = db.Column(db.Integer, primary_key=True)
-    id_user = db.Column(db.Integer, db.ForeignKey('user.id'))
-    code = db.Column(db.String(100))
+    max_item_par_page = db.Column(db.Integer)
 
 class Logement(db.Model):
     __tablename__ = "logement"
@@ -66,6 +61,7 @@ class Valeur(db.Model):
     id_element = db.Column(db.Integer, db.ForeignKey('element.id'))
     valeur = db.Column(db.Integer, default=2)
     observation = db.Column(db.String(1000))
+    facturation = db.Column(db.Boolean)
 
 class TypeEDL(db.Model):
     __tablename__ = "type_edl"
