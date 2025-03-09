@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from ..models import CategorieElement, Element, TypeLogement, TypeEDL, Logement, User, EDL, Historique
 from .. import db
 from sqlalchemy import select
-from .functions import *
+from ..functions import *
 
 views = Blueprint('views', __name__, template_folder='../templates/views')
 

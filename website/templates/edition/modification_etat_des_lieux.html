@@ -119,10 +119,14 @@
         <h4 class="mt-2">Images</h4>
     </li>
     <li class="list-group-item">
-        <div id="file-div">
-            
+        <div class="d-grid col mb-2 mt-2">
+            <button type="button" class="btn btn-outline-info" onclick="ajouterInput()">
+                Ajouter une photo
+            </button>
         </div>
-        <input type="file" class="form-control" id="file1">
+        <div id='imagesInputs'>
+            <!-- Les inputs s'insèrent ici-->
+        </div>
     </li>
     <li class="list-group-item list-group-item-warning d-flex justify-content-between align-items-center">
         <h4 class="mt-2">Signature</h4>
@@ -164,5 +168,8 @@
           type="text/javascript"
           src="{{ url_for('static', filename='sign.js') }}"
         ></script>
-        
+<script
+          type="text/javascript"
+          src="{{ url_for('static', filename='image_loader_edl.js')}}"
+></script>
 {% endblock %}

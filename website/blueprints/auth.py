@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from .functions import passWdCheck, userNmCheck, activePage, getActivationCodeNewUser
+from ..functions import passWdCheck, userNmCheck, activePage, getActivationCodeNewUser
 from ..models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from .. import db

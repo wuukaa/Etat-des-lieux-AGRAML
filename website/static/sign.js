@@ -24,22 +24,3 @@ var signaturePad = new SignaturePad(document.getElementById('signature-pad'), {
         document.getElementById('cache').disabled = true;
     }
 });
-
-var button = document.getElementById("file1");
-
-  button.addEventListener('change', (event) => {
-    button.setAttribute("id", "");
-    addElement();
-    button = document.getElementById("file1");
-  });
-
-function addElement() {
-  const newDiv = document.createElement("new");
-  var x = document.createElement("INPUT");
-  x.setAttribute("id", "file1");
-  x.setAttribute("type", "file");
-  x.setAttribute("class", "form-control");
-  newDiv.appendChild(x);
-  const currentDiv = document.getElementById("file-div");
-  currentDiv.appendChild(newDiv);
-};

@@ -1,7 +1,7 @@
 from flask import request, flash
 from sqlalchemy import select, delete
-from ..models import *
-from .. import db
+from .models import *
+from . import db
 import time
 import math
 from datetime import datetime
@@ -159,23 +159,30 @@ def editEDL(form, id_edl):
     edl_line = db.session.query(EDL).filter(EDL.id == id_edl).first()
     for line in form.keys():
         split = line.split('.')
-        if split[0] == 'Information':
-            if split[1] == 'nom':
-                edl_line.nom = form[line]
+
+        match split[0]:
+            case 'Information':
+                match split[1]:
+                    case 'nom':
+                        edl_line.nom = form[line]
+                        continue
+                    case 'prenom':
+                        edl_line.prenom = form[line]
+                        continue
+                    case 'mail':
+                        edl_line.mail = form[line]
+                        continue
+                    case 'date':
+                        edl_line.date = form[line]
+                        continue
+                    case _:
+                        raise(KeyError)
+            case 'signature':
+                edl_line.signature = form[line]
                 continue
-            elif split[1] == 'prenom':
-                edl_line.prenom = form[line]
+            case 'image':
+                print(form[line])
                 continue
-            elif split[1] == 'mail':
-                edl_line.mail = form[line]
-                continue
-            elif split[1] == 'date':
-                edl_line.date = form[line]
-                continue
-            continue
-        elif split[0] == 'signature':
-            edl_line.signature = form[line]
-            continue
         id_valeur = int(split[0])
         if id_valeur != 0:
             champ = split[-1]
@@ -585,4 +592,3 @@ def pagination(Item: list | dict, i_page: int, n_item_max: int) -> list[list | d
     else:
         ListeBoutton = [generateBouton(i, i + 1, (True if i == i_page else False)) for i in range(n_page)]
     return Scindage[i_page], ListeBoutton
-

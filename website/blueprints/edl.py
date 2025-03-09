@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect
 from flask_login import login_required, current_user
 from ..models import TypeLogement
 from .. import db
-from .functions import *
+from ..functions import *
 
 edl = Blueprint('edl', __name__, template_folder='../templates/edl')
 
