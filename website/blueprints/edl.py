@@ -4,7 +4,8 @@ from ..models import TypeLogement
 from .. import db
 from ..functions import *
 import os
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+
+dir = os.path.dirname(__file__)
 
 edl = Blueprint('edl', __name__, template_folder='../templates/edl')
 
@@ -57,7 +58,7 @@ def requete_etat_des_lieux():
             extension = fichier.filename.split('.')[-1]
             if fichiersAutorises(extension):
                 nom_du_fichier = name.split('.')[-1] + '.' +  extension
-                fichier.save(os.path.join("/home/wuukaa/Documents/GitHub/Etat-des-lieux-AGRAML/storage/img/", nom_du_fichier))
+                fichier.save(dir + '/../../storage/img/' + nom_du_fichier)
         id_logement = request.args.get('id_logement')
         id_edl = request.args.get('id_edl')
         form = request.form

@@ -1,8 +1,10 @@
 import jinja2
 import pdfkit
+import os
+dir = os.path.dirname(__file__)
 
-template_directory = "/home/wuukaa/Documents/GitHub/Etat-des-lieux-AGRAML/website/templates/edl"
-output_directory = "/home/wuukaa/Documents/GitHub/Etat-des-lieux-AGRAML/storage/pdf/"
+template_directory = f"{dir}/templates/edl"
+output_directory = f"{dir}/../storage/pdf/"
 id = 50
 context={"mes infos ici" : ''}
 
