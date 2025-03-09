@@ -3,6 +3,8 @@ from flask_login import login_required, current_user
 from ..models import TypeLogement
 from .. import db
 from ..functions import *
+import os
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 edl = Blueprint('edl', __name__, template_folder='../templates/edl')
 
@@ -50,10 +52,15 @@ def liste_etat_des_lieux():
 @login_required
 def requete_etat_des_lieux():
     if request.method == 'POST':
+        for name in request.files:
+            fichier = request.files[name]
+            extension = fichier.filename.split('.')[-1]
+            if fichiersAutorises(extension):
+                nom_du_fichier = name.split('.')[-1] + '.' +  extension
+                fichier.save(os.path.join("/home/wuukaa/Documents/GitHub/Etat-des-lieux-AGRAML/storage/img/", nom_du_fichier))
         id_logement = request.args.get('id_logement')
         id_edl = request.args.get('id_edl')
         form = request.form
-        print(form)
         action = request.form.get('0.action')
         if action == 'modification':
             appendHistorique(id_edl, '1')

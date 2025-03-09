@@ -181,7 +181,7 @@ def editEDL(form, id_edl):
                 edl_line.signature = form[line]
                 continue
             case 'image':
-                print(form[line])
+                #print(form[line])
                 continue
         id_valeur = int(split[0])
         if id_valeur != 0:
@@ -592,3 +592,11 @@ def pagination(Item: list | dict, i_page: int, n_item_max: int) -> list[list | d
     else:
         ListeBoutton = [generateBouton(i, i + 1, (True if i == i_page else False)) for i in range(n_page)]
     return Scindage[i_page], ListeBoutton
+
+# Pour accepter seulement les extensions de fichier voulues pour les edl
+EXTENSIONS_AUTHORISEES = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+def fichiersAutorises(extension: str) -> bool:
+    if extension in EXTENSIONS_AUTHORISEES:
+        return True
+    else:
+        return False

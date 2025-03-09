@@ -18,7 +18,7 @@ const generateUUID = () =>
         buttondiv.setAttribute("class", "input-group mb-3")
         newdiv.setAttribute('id',uuid);
         newdiv.setAttribute('class', 'col');
-        inputImage.setAttribute("name", "-1.image." + uuid);
+        inputImage.setAttribute("name", "image." + uuid);
         inputImage.setAttribute("type", "file");
         inputImage.setAttribute("class", "form-control");
         suppBooutton.setAttribute("href", "#");
