@@ -1,0 +1,40 @@
+{% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
+
+{% block content %}
+<br>
+<h1 class="display-4">Journal des interventions</h1>
+<br>
+<a href=".." class="btn btn-outline-danger">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"></path>
+    </svg>
+    Retour
+</a>
+<br/>
+
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Logement</th>
+        <th scope="col">Elément</th>
+        <th scope="col">Prénom</th>
+        <th scope="col">Nom</th>
+        <th>Observation</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for intervention in JournalIntervention %}
+            <tr>
+                <td>{{intervention.logement}}</th>
+                <td>{{intervention.intitule_element}}</td>
+                <td>{{intervention.prenom_responsable}}</td>
+                <td>{{intervention.nom_responsable}}</td>
+                <td>{{intervention.observation}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% include "pagination.html" %}
+
+{% endblock %}

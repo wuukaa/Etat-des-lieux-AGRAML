@@ -42,6 +42,11 @@
             </div>
           </div>
         </div>
+
+        <div class="list-group">
+          <button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+        </div>
+        
     <h4></h4>
     <h4 class="mb-3">Logements existants</h4>
     {% for logement in Logements %}
@@ -96,5 +101,6 @@
 </div>
 </form>
 
+{% include "pagination.html" %}
 
 {% endblock %}

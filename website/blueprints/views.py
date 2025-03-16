@@ -27,9 +27,36 @@ def historique():
     else:
         i_page_pagination = int(i_page_pagination)
     ListeEDL, ListeBoutton = pagination(sortEDLbyDate(), i_page_pagination, current_user.max_item_par_page)
-    return render_template('historique.html', active=activePage(2),  user=current_user, ListeEDL=ListeEDL, convertDateFormat=convertDateFormat, ListeBoutton=ListeBoutton)  
+    return render_template('historique.html', active=activePage(2),  user=current_user, ListeEDL=ListeEDL, convertDateFormat=tempsHTMLVersHumain, ListeBoutton=ListeBoutton)  
 
-@views.route('interventions')
+@views.route('/interventions/')
 @login_required
 def intervention():
-    return render_template('intervention.html', active=activePage(13), user=current_user)
+    i_page_pagination = request.args.get('pagination')
+    if i_page_pagination is None:
+        i_page_pagination = 0
+    else:
+        i_page_pagination = int(i_page_pagination)
+    ListeInterventions, ListeBoutton = pagination(getListeInterventions(False), i_page_pagination, current_user.max_item_par_page)
+    return render_template('intervention.html', active=activePage(13), user=current_user, ListeInterventions=ListeInterventions, ListeBoutton=ListeBoutton)
+
+@views.route('/interventions/<option>/<intervention>/')
+@login_required
+def operationIntervention(option: str, intervention: str):
+    id_intervention = intervention.split('-')[1]
+    if option == 'repare':
+        interventiondb = db.session.query(Intervention).filter(Intervention.id == id_intervention).first()
+        interventiondb.etat = 1
+        db.session.commit()
+    return redirect('/interventions/', code=302)
+
+@views.route('/interventions/journal/')
+@login_required
+def journalIntervention():
+    i_page_pagination = request.args.get('pagination')
+    if i_page_pagination is None:
+        i_page_pagination = 0
+    else:
+        i_page_pagination = int(i_page_pagination)
+    JournalIntervention, ListeBoutton = pagination(getListeInterventions(True), i_page_pagination, current_user.max_item_par_page)
+    return render_template('journal_intervention.html', active=activePage(13), user=current_user, JournalIntervention=JournalIntervention, ListeBoutton=ListeBoutton)

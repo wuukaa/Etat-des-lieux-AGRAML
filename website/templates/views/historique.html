@@ -5,33 +5,31 @@
 <h1 class="display-4">Historique des états des lieux</h1>
 <br>
 
-<form action="/modification_etat_des_lieux" method="post">
-    <div class="list-group">
-        {% for edl in ListeEDL %}
-            {% if edl[1] == 0 %}
-                <button class="list-group-item list-group-item-action list-group-item-danger" type="submit" name="id_edl" value="{{edl[0].id}}">
-                    <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
-                    Suppression faite le {{edl[2]}}
-                </button>
-            {% elif edl[1] == 1 %}
-                <button class="list-group-item list-group-item-action list-group-item-warning" type="submit" name="id_edl" value="{{edl[0].id}}">
-                    <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
-                    Modification faite le {{edl[2]}}
-                </button>
-            {% elif edl[1] == 2 %}
-                <button class="list-group-item list-group-item-action list-group-item-success" type="submit" name="id_edl" value="{{edl[0].id}}">
-                    <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
-                    Arrivée le {{edl[2]}}
-                </button>
-            {% elif edl[1] == 3 %}
-                <button class="list-group-item list-group-item-action list-group-item-secondary" type="submit" name="id_edl" value="{{edl[0].id}}">
-                    <h3><b>{{edl[0].prenom + " " + edl[0].nom}}</b></h3>
-                    Parti(e) le {{edl[2]}}
-                </button>
-            {% endif %}
-        {% endfor %}
-    </div>
-</form>
+<div class="list-group">
+    {% for edl in ListeEDL %}
+        {% if edl[1] == 0 %}
+            <a href="/consultation/edl-{{edl[0].id}}/" class="list-group-item list-group-item-action list-group-item-danger">
+                <h3><b>{{edl[3]}} - {{edl[0].prenom + " " + edl[0].nom}}</b></h3>
+                Suppression faite le {{edl[2]}}
+            </a>
+        {% elif edl[1] == 1 %}
+            <a href="/consultation/edl-{{edl[0].id}}/" class="list-group-item list-group-item-action list-group-item-warning">
+                <h3><b>{{edl[3]}} - {{edl[0].prenom + " " + edl[0].nom}}</b></h3>
+                Modification faite le {{edl[2]}}
+            </a>
+        {% elif edl[1] == 2 %}
+            <a href="/consultation/edl-{{edl[0].id}}/" class="list-group-item list-group-item-action list-group-item-success">
+                <h3><b>{{edl[3]}} - {{edl[0].prenom + " " + edl[0].nom}}</b></h3>
+                Arrivée le {{edl[2]}}
+            </a>
+        {% elif edl[1] == 3 %}
+            <a href="/consultation/edl-{{edl[0].id}}/" class="list-group-item list-group-item-action list-group-item-secondary">
+                <h3><b>{{edl[3]}} - {{edl[0].prenom + " " + edl[0].nom}}</b></h3>
+                Parti(e) le {{edl[2]}}
+            </a>
+        {% endif %}
+    {% endfor %}
+</div>
 
 {% include "pagination.html" %}
 

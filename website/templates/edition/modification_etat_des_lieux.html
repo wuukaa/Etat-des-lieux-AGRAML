@@ -58,8 +58,8 @@
     <div class="list-group-item mb">
         <b>Date de l'état des lieux</b>
         <div class="form-floating">
-            <input class="form-control" type="date" id="start" name="Information.date" value="{{EDLInformation.date}}" min="2023-01-01" max="2030-12-31" />
-            <label for="start">Date</label>
+            <input class="form-control" type="datetime-local" id="start" name="Information.date" value="{{EDLInformation.date}}"/>
+            <label for="start">Date et heure</label>
         </div>
     </div>
 
@@ -99,13 +99,8 @@
                     <div class="col flex">
                         <div class=" form-floating">
                             <select class="form-select" name="{{element.id}}.{{categorie}}.{{element.intitule}}.facturation" id="select-facturation">
-                            {% if element.facturation %}
-                                <option value="on" selected>Oui</option>
-                                <option value="off">Non</option>
-                            {% else %}
                                 <option value="on">Oui</option>
                                 <option value="off" selected>Non</option>
-                            {% endif %}
                             </select>
                             <label for="select-facturation">Facturation</label>
                         </div>
@@ -127,6 +122,41 @@
         <div id='imagesInputs'>
             <!-- Les inputs s'insèrent ici-->
         </div>
+
+        {% if ListeImages %}
+        <br>
+        <h5><u>Images déja attachées à l'état des lieux:</u></h5>
+            <div id="liste-images" class="carousel slide">
+                <div class="carousel-inner">
+                    {% for i, image in enumerate(ListeImages) %}
+                <div class="carousel-item{{" active" if i == 0 else ""}}">
+                    <img src="{{url_for('static', filename=image)}}" class="d-block w-100 mb-2">
+                    <div class="row">
+                        <div class="col"></div>
+                        <div class="col btn-group" role="group">
+                            <input type="radio" class="btn-check" name="image.existant.{{image}}" value="garder" id="{{image}}-garder" autocomplete="off" checked>
+                            <label class="btn btn-outline-primary" for="{{image}}-garder">Garder</label>
+                        
+                            <input type="radio" class="btn-check" name="image.existant.{{image}}" value="retirer" id="{{image}}-retirer" autocomplete="off">
+                            <label class="btn btn-outline-danger" for="{{image}}-retirer">Retirer</label>
+                        </div>
+                        <div class="col"></div>
+                    </div>
+                </div>
+                
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#liste-images" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#liste-images" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        {% endif %}
+
     </li>
     <li class="list-group-item list-group-item-warning d-flex justify-content-between align-items-center">
         <h4 class="mt-2">Signature</h4>
@@ -139,7 +169,7 @@
         <div>
             <button class="btn btn-outline-secondary mt-2" type="button" id="clear">Effacer</button>
         </div>
-        <input id="image" class="d-none" name="signature" value="{{EDLInformation.signature}}">
+        <input id="image" class="d-none" name="signature" value="">
     </div>
 </div>
 <br>
@@ -150,11 +180,7 @@
             <button class="btn btn-success" type="submit" name="0.action" value="arrivee">Arrivée</button>
             <button class="btn btn-success" type="submit" name="0.action" value="depart">Départ</button>
         </div>
-        {% if not edl_existant %}
-            <button class="btn btn-warning" type="submit" name="0.action" value="modification">Modifier</button>
-            <button class="btn btn-danger" type="submit" name="0.action" value="supprimer">Supprimer</button>
-        {% endif %}
-    {% else %}
+    {% else %} 
     <button class="btn btn-danger" type="submit" name="0.action" value="defsupp">Supprimer definitivement</button>
     {% endif %}
 </div>

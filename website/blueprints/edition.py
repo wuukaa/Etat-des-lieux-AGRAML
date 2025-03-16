@@ -8,22 +8,32 @@ from ..functions import *
 edition = Blueprint('edition', __name__, template_folder='../templates/edition')
 
 # Redirection vers la page de modification d'état des lieux
-@edition.route('/modification_etat_des_lieux', methods = ['GET', 'POST'])
+@edition.route('recherche/<logement>/<edl>/', methods = ['GET', 'POST'])
 @login_required
-def modification_etat_des_lieux():
-    id_edl = request.form.get('id_edl')
-    id_logement = request.args.get('id_logement')
-    if id_edl == 'nouveau':
+def modification_etat_des_lieux(logement: str, edl: str):
+    try:
+        id_edl = edl.split('-')[2]
+        type_creation = edl.split('-')[1]
+    except:
+        type_creation = edl
+        id_edl = None
+    id_logement = logement.split('-')[1]
+    ListeImages = list()
+    if type_creation == 'nouveau':
         type_logement = db.session.query(Logement).filter(Logement.id == id_logement).first().type_logement
         Etats = getTemplateEtatDesLieux(type_logement)
         EDLInformation = getTemplateEtatDesLieuxInformation(id_logement, current_user)
         edl_existant = True
-    else:
-        # EDL existant
+    elif type_creation == 'inc':
+        # EDL existant avec photos et infos
         Etats = getEtat(id_edl)
-        EDLInformation = getEDLInformation(id_edl)
-        edl_existant = False
-    return render_template('modification_etat_des_lieux.html', active=activePage(1),  user=current_user,  Etats = Etats, id_edl = id_edl, edl_existant=edl_existant, EDLInformation=EDLInformation)
+        ListeImages = recuperationImages(id_edl)
+        EDLInformation = getEDLInformation(id_edl, False)
+    elif type_creation == 'exc':
+        # EDL existant sans photos
+        Etats = getEtat(id_edl)
+        EDLInformation = getEDLInformation(id_edl, True)
+    return render_template('modification_etat_des_lieux.html', active=activePage(1),  user=current_user,  Etats = Etats, id_edl = id_edl, EDLInformation=EDLInformation, ListeImages=ListeImages, enumerate=enumerate)
 
 # Redirection vers la page de modification des éléments
 @edition.route('modifier_elements', methods = ['GET', 'POST'])
@@ -63,12 +73,18 @@ def modifier_categories():
 @edition.route('modifier_logements', methods = ['GET', 'POST'])
 @login_required
 def modifier_logements():
+    i_page_pagination = request.args.get('pagination')
+    if i_page_pagination is None:
+        i_page_pagination = 0
+    else:
+        i_page_pagination = int(i_page_pagination)
     if request.method == 'POST':
         form = request.form
         updateLogements(form)
     Logements = db.session.query(Logement, TypeLogement).where(Logement.type_logement == TypeLogement.id).all()
+    Logements, ListeBoutton = pagination(Logements, i_page_pagination, current_user.max_item_par_page)
     TypesLogements = db.session.query(TypeLogement).all()
-    return render_template('modifier_logements.html', active=activePage(5), TypesLogements=TypesLogements,  user=current_user, Logements=Logements)
+    return render_template('modifier_logements.html', active=activePage(5), TypesLogements=TypesLogements,  user=current_user, Logements=Logements, ListeBoutton=ListeBoutton)
 
 # Redirection vers la page de modification des types de logement
 @edition.route('modification_types_logement', methods = ['GET', 'POST'])

@@ -6,28 +6,42 @@
 <h1 class="display-4">Selectionne un état des lieux</h1>
 <br>
 
-<form action="/modification_etat_des_lieux?id_logement={{id_logement}}" method="post">
-    <div class="list-group">
-    {% for edl in ListeEtatDesLieux %}
-        {% if edl.occupation %}
-            <button class="list-group-item list-group-item-action list-group-item-primary" type="submit" name="id_edl" value="{{edl.id_edl}}">
-                <h3><b>{{edl.prenom}} {{edl.nom}}</b></h3>
-                Arrivé(e) {{edl.date}} procédé par <b>{{edl.agraml_prenom}} {{edl.agraml_nom}}</b>
-            </button>
-        {% else %}
-            <button class="list-group-item list-group-item-action list-group-item-secondary" type="submit" name="id_edl" value="{{edl.id_edl}}">
-                <h3><b>{{edl.prenom}} {{edl.nom}}</b></h3>
-                Parti(e) le {{edl.date}} procédé par <b>{{edl.agraml_prenom}} {{edl.agraml_nom}}</b>
-            </button>
-        {% endif %}
-    {% endfor %}
-        <button class="list-group-item list-group-item-action list-group-item-success" type="submit" name="id_edl" value="nouveau">
-            <h4><b>Nouveau</b></h4>
-            Créer un état des lieux vierge pour ce logement selon le modèle défini
-        </button>
-    </div>
-</form>
+{% if edl %}
+    <figcaption class="blockquote-footer">
+        Dernier état des lieux pour <b>{{edl.prenom}} {{edl.nom}}</b>, <cite title="Source Title">{{edl.date}}</cite>
+    </figcaption>
 
-{% include "pagination.html" %}
+    <div class="list-group mb-2">
+        <a href="edl-inc-{{edl.id_edl}}/" class="list-group-item list-group-item-action list-group-item-primary">
+            <h3><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-check-fill" viewBox="0 1 16 16">
+                <path fill-rule="evenodd" d="M15.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L12.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0"/>
+                <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+              </svg>
+              <b>Même locataire</b></h3>
+            Reprise de l'EDL avec les photos et les informationde l'ancien locataire
+        </a>
+
+        <a href="edl-exc-{{edl.id_edl}}/" class="list-group-item list-group-item-action list-group-item-secondary">
+            <h3><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 1 16 16">
+                <path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
+                <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+              </svg>
+              <b>Locataire différent</b></h3>
+            Reprise seulement des états de l'ancien EDL
+        </a>
+    </div>
+{% endif %}
+
+
+<div class="list-group">
+    <a href="nouveau/" class="list-group-item list-group-item-action list-group-item-success">
+        <h3><svg xmlns="http://www.w3.org/2000/svg" width="18" height="25" fill="currentColor" class="bi bi-file-earmark-plus" viewBox="4 0 10 20">
+            <path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5"/>
+            <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
+          </svg>
+          <b>Nouveau</b></h3>
+        Créer un état des lieux vierge pour ce logement selon le modèle défini
+    </a>
+</div>
 
 {% endblock %}

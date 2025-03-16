@@ -44,7 +44,6 @@ class Element(db.Model):
 class EDL(db.Model):
     __tablename__ = "edl"
     id = db.Column(db.Integer, primary_key=True)
-    supprime = db.Column(db.Boolean)
     id_logement = db.Column(db.Integer, db.ForeignKey('logement.id'))
     effectue_par = db.Column(db.Integer, db.ForeignKey('user.id'))
     occupation = db.Column(db.Boolean)
@@ -76,3 +75,15 @@ class Historique(db.Model):
     date = db.Column(db.String(20))
     id_edl = db.Column(db.Integer, db.ForeignKey('edl.id'))
     action = db.Column(db.Integer)
+
+class Image(db.Model):
+    __tablename__ = "image"
+    id = db.Column(db.Integer, primary_key=True)
+    nom_image = db.Column(db.String)
+    id_edl = db.Column(db.Integer, db.ForeignKey('edl.id'))
+
+class Intervention(db.Model):
+    __tablename__ = "intervention"
+    id = db.Column(db.Integer, primary_key=True)
+    id_valeur = db.Column(db.Integer, db.ForeignKey('valeur.id'), unique=True)
+    etat = db.Column(db.Integer)

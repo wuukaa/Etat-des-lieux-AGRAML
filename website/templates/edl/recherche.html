@@ -1,0 +1,143 @@
+{% extends "base.html" %} {%block title %}Liste logements{% endblock %}
+
+{% block content %}
+
+<br>
+<h1 class="display-4">Recherche un logement</h1>
+<br>
+
+<form id="filtre-form" method="post">
+  <h4>Filtre</h4>
+  <div class="input-group mb-3">
+    <div class="form-floating col">
+      <select id="batiment" name="batiment" class="form-select">
+        {% for bat in ['-', 'A', 'B', 'C', 'D', 'E', 'F', 'TA', 'TB'] %}
+          {% if form.batiment == bat %}
+            <option value="{{bat}}" selected>{{bat}}</option>
+          {% else %}
+            <option value="{{bat}}">{{bat}}</option>
+          {% endif %}
+        {% endfor %}
+      </select>              
+      <label for="batiment">Bâtiment</label>
+    </div>
+    <div class="form-floating col">
+      <select id="etage" name="etage" class="form-select">
+        {% for etage in ['-', 0, 1, 2, 3, 4, 5, 6] %}
+          {% if form.etage == str(etage) %}
+            <option selected value="{{etage}}">{{etage}}</option>
+          {% else %}
+            <option value="{{etage}}">{{etage}}</option>
+          {% endif %}
+        {% endfor %}
+      </select>        
+      <label for="etage">Étage</label>    
+    </div>
+    <div class="form-floating col">
+      <select id="type" name="type" class="form-select">
+            <option value="-">-</option>
+        {% for type in TypesLogements %}
+          {% if form.type == str(type.id) %}
+            <option selected value="{{type.id}}">{{type.type}}</option>
+          {% else %}
+            <option value="{{type.id}}">{{type.type}}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <label for="inputType">Type</label>
+    </div>
+  </div>
+  <div class="input-group mb-3">
+    <div class="form-floating col-md">
+        <input type="text" id="prenom" name="prenom" class="form-control" placeholder="Prénom" value="{{form.prenom}}">
+        <label for="prenom">Prénom</label>
+    </div>
+    <div class="form-floating col-md">
+        <input type="text"id="nom" name="nom" class="form-control" placeholder="Nom" value="{{form.nom}}">
+        <label for="nom">Nom</label>
+    </div>
+  </div>
+  <div class="d-grid row g-1">
+    <div class="btn-group btn-group-justified">
+      {% if user.mode == 'dark' %}
+        <button type="submit" class="btn btn-outline-light" style="width:  25%;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel-fill" viewBox="0 0 16 16">
+            <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
+          </svg>
+          Appliquer les filtres
+        </button>
+      {% else %}
+        <button type="submit" class="btn btn-outline-dark" style="width:  25%;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel-fill" viewBox="0 0 16 16">
+            <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
+          </svg>
+          Filtrer
+        </button>
+      {% endif %}
+
+      <button type="button" class="btn btn-outline-danger" style="width:  25%;" onclick="reinitialiserFiltre()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+          <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
+        </svg>
+        Réinitialiser
+      </button>
+    </div>
+  </div>
+</form>
+
+{% if ListeLogements %}
+  <br>
+
+  {% if len(ListeLogements) == 1 %}
+    <h4>Résultat</h4>
+  {% else %}
+    <h4>Résultats</h4>
+  {% endif %}
+
+
+<div class="list-group">
+  {% for logement in ListeLogements %}
+    <h4>
+      <a href="/recherche/logement-{{logement.id_logement}}/" class="rounded list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{logement.nom_logement}}</strong> <h5>{{logement.type_logement}}</h5>
+        </div>
+        {% if logement.etat_logement == None %}
+          <span class="badge bg-danger rounded-pill">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-lg" viewBox="0 0 16 16">
+              <path d="M7.005 3.1a1 1 0 1 1 1.99 0l-.388 6.35a.61.61 0 0 1-1.214 0zM7 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0"/>
+            </svg>
+          </span>
+        {% elif logement.etat_logement == True %}
+          <span class="badge bg-success rounded-pill">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-closed-fill" viewBox="0 0 16 16">
+              <path d="M12 1a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2a1 1 0 0 1 1-1zm-2 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+            </svg>
+          </span>
+        {% elif logement.etat_logement == False %}
+          <span class="badge bg-warning rounded-pill">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-open-fill" viewBox="0 0 16 16">
+              <path d="M1.5 15a.5.5 0 0 0 0 1h13a.5.5 0 0 0 0-1H13V2.5A1.5 1.5 0 0 0 11.5 1H11V.5a.5.5 0 0 0-.57-.495l-7 1A.5.5 0 0 0 3 1.5V15zM11 2h.5a.5.5 0 0 1 .5.5V15h-1zm-2.5 8c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1"/>
+            </svg>
+          </span>
+        {% endif %}
+      </a>
+    </h4>
+  {% endfor %}
+</div>
+
+  {% else %}
+  <br>
+  <h5><em>Rajoute des filtres pour selectionner un logement!
+    Il est posible que le filtre appliqué ne donne aucun résultat.
+  </em></h5>
+{% endif %}
+
+<script
+          type="text/javascript"
+          src="{{ url_for('static', filename='filtre.js') }}"
+        ></script>
+
+{% include "pagination.html" %}
+
+{% endblock %}
