@@ -6,6 +6,7 @@ import time
 import math
 from datetime import datetime
 import os
+from .pdf_generation import *
 # from xhtml2pdf import pisa
 
 class color:
@@ -366,7 +367,8 @@ def getEDLInformation(id_edl: int, edl_existant: bool) -> dict:
             'signature_agraml' : signature_agraml,
             'logement': QueryLogement.batiment + '.' + str(QueryLogement.etage) + '.' + QueryLogement.numero,
             'type_logement': QueryTypeLogement.type,
-            'signature': '' if edl_existant else QueryEDL.signature}
+            'signature': '' if edl_existant else QueryEDL.signature,
+            'type_edl': QueryEDL.occupation}
     return EDLInformation
 
 # Utiliser cette fonction pour supprimer un EDL totalement (valeurs, historique et edl)
@@ -383,6 +385,8 @@ def deleteEDL(id_edl: int) -> ...:
             except:
                 print("suppression de photo impossible")
     for val in QueryValeur:
+        QueryInterventionRelatif = db.session.query(Intervention).filter(val.id == Intervention.id_valeur)
+        db.session.delete(QueryInterventionRelatif)
         db.session.delete(val)
     historique = db.session.query(Historique).filter(Historique.id_edl == id_edl).all()
     for edl in historique:
@@ -673,6 +677,7 @@ def getListeInterventions(Journal: bool) -> list[dict,]:
     for intervention in QueryIntervention:
         interventionRelative = dict()
         ValeurRelative =  db.session.query(Valeur).filter(Valeur.id == intervention.id_valeur).first()
+        print(ValeurRelative)
         ElementRelatif = db.session.query(Element).filter(Element.id == ValeurRelative.id_element).first()
         CategorieRelative = db.session.query(CategorieElement).filter(CategorieElement.id == ElementRelatif.id_categorie).first()
         EDLRelatif = db.session.query(EDL).filter(EDL.id == ValeurRelative.id_edl).first()

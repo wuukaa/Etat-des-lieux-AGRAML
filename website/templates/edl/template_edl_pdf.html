@@ -3,8 +3,58 @@
 {% block content %}
 
 <br>
-<h1 class="display-4">APERçU de l'état des lieux</h1>
+<h1 class="display-4">Consultation de l'état des lieux</h1>
 <br>
+<div class="d-grid row g-1">
+  <div class="btn-group-justified">
+    <a href="{{url_for('static', filename="/storage/pdf/" + fichier_edl)}}" class="btn btn-success" style="width: 49.7%;" download>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16">
+        <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"></path>
+        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"></path>
+      </svg>
+      Télécharger
+    </a>
+
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" style="width: 49.7%;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-arrow-up" viewBox="0 0 16 16">
+        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4.5a.5.5 0 0 1-1 0V5.383l-7 4.2-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h5.5a.5.5 0 0 1 0 1H2a2 2 0 0 1-2-1.99zm1 7.105 4.708-2.897L1 5.383zM1 4v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1"></path>
+        <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.354-5.354 1.25 1.25a.5.5 0 0 1-.708.708L13 12.207V14a.5.5 0 0 1-1 0v-1.717l-.28.305a.5.5 0 0 1-.737-.676l1.149-1.25a.5.5 0 0 1 .722-.016"></path>
+      </svg>
+      Mail
+    </button>
+  </div>
+</div>
+
+<br>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Envoyer l'état des lieux par mail</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Vous pouvez envoyer l'état des lieux au format PDF à l'addresse:
+        <ul>
+          <li>AGRAML: <i>direction@agraml.fr</i></li>
+          <li>Moi: <i>{{user.email}}</i></li>
+          <li>Locataire: <i>{{EDLInformation.mail}}</i></li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fermer</button>
+        <div class="btn-group">
+          <button type="button" class="btn btn-outline-primary">AGRAML</button>
+          <button type="button" class="btn btn-outline-primary">Moi</button>
+          <button type="button" class="btn btn-outline-warning">Locataire</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <div class="list-group">
     <li class="list-group-item list-group-item-success">
@@ -63,13 +113,13 @@
       </li>
 
       <div class="list-group-item">
-        <table class="table">
+        <table class="table table-striped table-hover">
           <thead>
             <tr>
-              <th scope="col">Élément</th>
-              <th scope="col">État</th>
-              <th scope="col">Observation</th>
-              <th scope="col">Intervention</th>
+              <th scope="col" style="width: 25%">Élément</th>
+              <th scope="col" style="width: 25%">État</th>
+              <th scope="col" style="width: 25%">Observation</th>
+              <th scope="col" style="width: 25%">Intervention</th>
             </tr>
           </thead>
           <tbody>
@@ -103,7 +153,7 @@
       <li class="list-group-item list-group-item-info">
           <h4 class="mt-2">Images</h4>
       </li>
-      
+
       <div id="liste-images" class="carousel slide">
         <div class="carousel-indicators">
           {% for i in I %}

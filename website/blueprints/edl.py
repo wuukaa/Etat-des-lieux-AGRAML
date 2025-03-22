@@ -1,13 +1,37 @@
-from flask import Blueprint, render_template, flash, redirect, make_response
+from flask import Blueprint, render_template, flash, redirect, make_response, url_for
 from flask_login import login_required, current_user
 from ..models import TypeLogement
 from .. import db
+import jinja2
+import pdfkit
 from ..functions import *
 import os
 
 dir = os.path.dirname(__file__)
 
 edl = Blueprint('edl', __name__, template_folder='../templates/edl')
+
+
+def genererFichierEDL(id_edl):
+    template_directory = f"{dir}/../templates/edl/"
+    output_directory = f"{dir}/../static/storage/pdf/"
+
+    template_loader = jinja2.FileSystemLoader(template_directory)
+    template_env = jinja2.Environment(loader=template_loader)
+
+    EDLInformation = getEDLInformation(id_edl, False)
+    Etats = getEtat(id_edl)
+    Images = recuperationImages(id_edl)
+    LongueurListeImage = range(len(Images))
+
+    image_dir = dir[:-11]
+    template = template_env.get_template('template_edl_pdf_wkhtmltopdf.html')
+    output_html = template.render(image_dir=image_dir, url_for=url_for, Etats=Etats, EDLInformation=EDLInformation, Images=Images, id_edl=id_edl, tempsHTMLVersHumain=tempsHTMLVersHumain, I=LongueurListeImage, enumerate=enumerate)
+
+    path = "/usr/bin/wkhtmltopdf"
+
+    config = pdfkit.configuration(wkhtmltopdf=path)
+    pdfkit.from_string(output_html, output_directory + f'etat_des_lieux_{id_edl}.pdf', configuration=config, options={"enable-local-file-access": None})
 
 # Redirection vers la page d'état des lieux
 @edl.route('recherche', methods = ['GET', 'POST'])
@@ -78,6 +102,7 @@ def requete_etat_des_lieux():
             id_edl = id_new_edl
             EDLInformation = getEDLInformation(id_edl, True)
             Etats = getEtat(id_edl)
+            genererFichierEDL(id_edl)
             flash("L'état des lieux à bien été pris en compte!", category="info")
 
     #html = render_template('template_edl_pdf.html', active=activePage(1),  user=current_user,  id_edl = id_edl, Etats=Etats, EDLInformation=EDLInformation)
@@ -101,5 +126,7 @@ def consultation(edl: str):
     Etats = getEtat(id_edl)
     Images = recuperationImages(id_edl)
     LongueurListeImage = range(len(Images))
-    return render_template('template_edl_pdf.html', active=activePage(2),  user=current_user, Etats=Etats, EDLInformation=EDLInformation, Images=Images, id_edl=id_edl, tempsHTMLVersHumain=tempsHTMLVersHumain, I=LongueurListeImage, enumerate=enumerate)
-
+    fichier_edl = f'{dir}/../static/storage/pdf/etat_des_lieux_{id_edl}.pdf'
+    if not os.path.isfile(fichier_edl):
+        genererFichierEDL(id_edl)
+    return render_template('template_edl_pdf.html', fichier_edl=f'etat_des_lieux_{id_edl}.pdf', active=activePage(2),  user=current_user, Etats=Etats, EDLInformation=EDLInformation, Images=Images, id_edl=id_edl, tempsHTMLVersHumain=tempsHTMLVersHumain, I=LongueurListeImage, enumerate=enumerate)
