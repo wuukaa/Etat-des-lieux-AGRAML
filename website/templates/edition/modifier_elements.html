@@ -1,4 +1,4 @@
-{% extends "base.html" %} {%block title %}Modification des élements{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 
@@ -31,14 +31,9 @@
     {% for element in Elements %}
         <div class="row">
             <div class="input-group">
-                <div class="form-floating">
+                <div class="form-floating mb-3">
                     <input type="text" class="form-control" id="intitule" name="{{element[0]}}.intitule" value="{{element[2]}}">
                     <label for="intitule">Intitulé</label>
-                </div>
-                <div class="input-group form-floating mb-3">
-                    <input type="text" class="form-control" id="prix" name="{{element[0]}}.prix" value="{{element[3]}}" aria-describedby="basic-addon2">
-                    <label for="prix">Prix</label>
-                    <span class="input-group-text" id="basic-addon2">€</span>
                 </div>
             </div>
         </div>
@@ -50,15 +45,10 @@
                 <input placeholder="" type="text" id="intitule" class="form-control" name="newitem.intitule" value="">
                 <label for="intitule">Intitulé</label>
             </div>
-            <div class="input-group form-floating mb-3">
-                <input placeholder="" type="text" class="form-control" id="prix" name="newitem.prix">
-                <label for="prix">Prix</label>
-                <span class="input-group-text" id="basic-addon2">€</span>
-            </div>
         </div>
     </div>
     <div class="list-group">
-        <button type="submit" class="btn btn-success btn-lg btn-block">Sauvegarder</button>
+        <button type="submit" class="btn btn-success btn-lg btn-block mb-4">Sauvegarder</button>
     </div>
 </form>
 

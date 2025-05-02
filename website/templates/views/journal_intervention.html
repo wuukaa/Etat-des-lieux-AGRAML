@@ -1,4 +1,4 @@
-{% extends "base.html" %} {%block title %}Page d'accueil{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 <br>
@@ -17,9 +17,8 @@
       <tr>
         <th scope="col">Logement</th>
         <th scope="col">Elément</th>
-        <th scope="col">Prénom</th>
-        <th scope="col">Nom</th>
         <th>Observation</th>
+        <th>Date d'intervention</th>
       </tr>
     </thead>
     <tbody>
@@ -27,9 +26,8 @@
             <tr>
                 <td>{{intervention.logement}}</th>
                 <td>{{intervention.intitule_element}}</td>
-                <td>{{intervention.prenom_responsable}}</td>
-                <td>{{intervention.nom_responsable}}</td>
                 <td>{{intervention.observation}}</td>
+                <td> A FAIRE{{intervention.prenom_responsable}}</td>
             </tr>
         {% endfor %}
     </tbody>

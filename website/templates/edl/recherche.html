@@ -1,11 +1,24 @@
-{% extends "base.html" %} {%block title %}Liste logements{% endblock %}
-
+{% extends "base.html" %}
 {% block content %}
 
 <br>
 <h1 class="display-4">Recherche un logement</h1>
 <br>
 
+<!--Barre de progression-->
+<div class="progress-stacked  mb-3" style="height: 50px">
+  <div class="progress border" role="progressbar" style="height: 50px; width: 33%">
+    <div class="progress-bar">1. Selection du logement</div>
+  </div>
+  <div class="progress border" role="progressbar" style="height: 50px; width: 34%">
+    <div class="progress-bar" style="background-color: rgb(168, 168, 168);">2. Type d'état des lieux</div>
+  </div>
+  <div class="progress border" role="progressbar" style="height: 50px; width: 33%">
+    <div class="progress-bar" style="background-color: rgb(168, 168, 168);">3. Édition de l'état des lieux</div>
+  </div>
+</div>
+
+<!--Formulaire de filtre-->
 <form id="filtre-form" method="post">
   <h4>Filtre</h4>
   <div class="input-group mb-3">
@@ -79,21 +92,20 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
           <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
         </svg>
-        Réinitialiser
+        Tout effacer
       </button>
     </div>
   </div>
 </form>
 
+<!--Affichage des logements correspondant au filtre-->
 {% if ListeLogements %}
   <br>
-
   {% if len(ListeLogements) == 1 %}
     <h4>Résultat</h4>
   {% else %}
     <h4>Résultats</h4>
   {% endif %}
-
 
 <div class="list-group">
   {% for logement in ListeLogements %}
@@ -103,21 +115,31 @@
           <strong>{{logement.nom_logement}}</strong> <h5>{{logement.type_logement}}</h5>
         </div>
         {% if logement.etat_logement == None %}
-          <span class="badge bg-danger rounded-pill">
+          <span class="badge bg-warning rounded-pill">
+            Pas d'information
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-lg" viewBox="0 0 16 16">
               <path d="M7.005 3.1a1 1 0 1 1 1.99 0l-.388 6.35a.61.61 0 0 1-1.214 0zM7 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0"/>
             </svg>
           </span>
-        {% elif logement.etat_logement == True %}
-          <span class="badge bg-success rounded-pill">
+        {% elif logement.etat_logement == "arrivee" %}
+          <span class="badge bg-danger rounded-pill">
+            Occupé
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-closed-fill" viewBox="0 0 16 16">
               <path d="M12 1a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2a1 1 0 0 1 1-1zm-2 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
             </svg>
           </span>
-        {% elif logement.etat_logement == False %}
-          <span class="badge bg-warning rounded-pill">
+          {% elif logement.etat_logement == "depart" %}
+          <span class="badge bg-success rounded-pill">
+            Libre
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-open-fill" viewBox="0 0 16 16">
               <path d="M1.5 15a.5.5 0 0 0 0 1h13a.5.5 0 0 0 0-1H13V2.5A1.5 1.5 0 0 0 11.5 1H11V.5a.5.5 0 0 0-.57-.495l-7 1A.5.5 0 0 0 3 1.5V15zM11 2h.5a.5.5 0 0 1 .5.5V15h-1zm-2.5 8c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1"/>
+            </svg>
+          </span>
+          {% elif logement.etat_logement == "pre-edl" %}
+          <span class="badge bg-primary rounded-pill">
+            Pré-EDL
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-square-fill" viewBox="0 0 16 16">
+              <path d="M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1"/>
             </svg>
           </span>
         {% endif %}
@@ -138,6 +160,7 @@
           src="{{ url_for('static', filename='filtre.js') }}"
         ></script>
 
+<!--Affichage des pages-->
 {% include "pagination.html" %}
 
 {% endblock %}

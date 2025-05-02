@@ -87,27 +87,16 @@ def requete_etat_des_lieux():
         ListeImageNom = sauvegardeImages(files)
         id_logement = request.args.get('id_logement')
         id_edl = request.args.get('id_edl')
-        action = request.form.get('0.action')
-        if action == 'depart' or action == 'arrivee':
-            if action == 'depart':
-                occupe = False
-            else:
-                occupe = True
-            id_new_edl = createEDL(form, occupe, id_logement, current_user.id, ListeImageNom)
-            rajoutInterventions(id_new_edl)
-            if action == "arrivee":
-                appendHistorique(id_new_edl, '2')
-            else:
-                appendHistorique(id_new_edl, '3')
-            id_edl = id_new_edl
-            EDLInformation = getEDLInformation(id_edl, True)
-            Etats = getEtat(id_edl)
-            genererFichierEDL(id_edl)
-            flash("L'état des lieux à bien été pris en compte!", category="info")
-
-    #html = render_template('template_edl_pdf.html', active=activePage(1),  user=current_user,  id_edl = id_edl, Etats=Etats, EDLInformation=EDLInformation)
-    #convert_html_file_to_pdf(html, 'pdf.pdf')
-    #return webbrowser.open_new_tab(send_file('C:/Users/Lucas/Documents/GitHub/Etat-des-lieux-AGRAML/pdf.pdf'))
+        etat = request.form.get('0.action')
+        id_new_edl = createEDL(form, etat, id_logement, current_user.id, ListeImageNom)
+        rajoutInterventions(id_new_edl)
+        if etat == "arrivee":
+            appendHistorique(id_new_edl, '2')
+        elif etat == "depart":
+            appendHistorique(id_new_edl, '3')
+        id_edl = id_new_edl
+        genererFichierEDL(id_edl)
+        flash("L'état des lieux à bien été pris en compte!", category="info")
     return redirect('recherche', code=302)
 
 @edl.route('/etat_des_lieux/<option>/<edl>/')

@@ -39,14 +39,13 @@ class Element(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_categorie = db.Column(db.Integer, db.ForeignKey('categorie_element.id'))
     intitule = db.Column(db.String(100))
-    prix = db.Column(db.Float())
 
 class EDL(db.Model):
     __tablename__ = "edl"
     id = db.Column(db.Integer, primary_key=True)
     id_logement = db.Column(db.Integer, db.ForeignKey('logement.id'))
     effectue_par = db.Column(db.Integer, db.ForeignKey('user.id'))
-    occupation = db.Column(db.Boolean)
+    etat = db.Column(db.String(20))
     date = db.Column(db.String(100))
     nom = db.Column(db.String(100))
     prenom = db.Column(db.String(100))

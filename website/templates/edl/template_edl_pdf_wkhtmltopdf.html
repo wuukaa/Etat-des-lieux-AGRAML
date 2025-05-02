@@ -46,11 +46,11 @@
           <p class="col-lg-10 fs-2 mt-3" style="font-size: 30px;">{{EDLInformation.type_logement}} - {{EDLInformation.logement}}</p>
           <br>
           <p class="lead">Pour le locataire {{EDLInformation.prenom}} {{EDLInformation.nom}}<br>
-            Coplété par {{EDLInformation.prenom_agraml}} {{EDLInformation.nom_agraml}}<br>
+            Complété par {{EDLInformation.prenom_agraml}} {{EDLInformation.nom_agraml}}<br>
             Le {{tempsHTMLVersHumain(EDLInformation.date)}}</p>
           <br>
           <br>
-          <p style="color: dimgrey;"><i>7/8 Rue Camille Guérin, 59800 Lille</i></p>        
+          <p style="color: dimgrey;"><i>7 Rue Camille Guérin, 59800 Lille</i></p>        
         </div>
       </div>
     </div>
@@ -105,10 +105,13 @@
               {% endfor %}
           </div>
         {% endif %}
-
-        <li class="list-group-item list-group-item-warning d-flex justify-content-between align-items-center">
-          <h4 class="mt-2">Signature</h4>
-        </li>
+      </div>
+    </div>
+    <div class="list-group">
+        <div class="new-page">
+          <li class="list-group-item list-group-item-warning d-flex justify-content-between align-items-center">
+            <h4 class="mt-2">Signature</h4>
+          </li>
           <div class="list-group-item">
             <p class="mt-2"><u>Signature du locataire:</u></p>
             <div class="wrapper border border-2 rounded mb-2" style="background-color: rgb(244, 244, 244);">

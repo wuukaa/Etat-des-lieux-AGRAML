@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<br>
+<h1 class="display-4">Bienvenue sur le site de l'AGRAML</h1>
+
+<h3>But de ce site</h3>
+
+<div class="clearfix">
+    <img src="{{ url_for('static', filename='media/agraml.png') }}" class="col-md-4 float-md-end mb-3 ms-md-3 img-fluid">
+  
+    <p>
+        Ce site internet permet de faciliter le procédé d'état des lieux pour l'Association de Gestion de la Résidence des Arts et Métiers de Lille.
+    </p>
+
+    <p>
+        Tout a été conçu pour être simple et durable. Toutes les interfaces partent de la même logique donc l'apprentissage est très rapide. En plus de ça, l'interface est moderne et modifiable via les paramètres!
+    </p>
+
+    <p>
+        Si jamais il manque une fonctionnalité, s'il y a un fonctionnement non désiré ou tout autre bugs, merci de m'adresser un message à l'adresse suivante: <a href="mailto:lucas.henry@gadz.org">lucas.henry@gadz.org</a>. Je reste disponible pour tout autre question ou suggestion!
+    </p>
+  
+    <p>
+        Ce site a été fait avec passion et amour! Aucune sorte d'intelligence artificielle n'a été utilisé pour le concevoir, tout est certifié « Fait-mains » ! Pas de ChatGPT ou autre outils, j'ai simplement utilisé les ressources à disposition de mon clavier.
+    </p>
+
+    <p>
+        Bien à vous, Lucas Henry, dit L'Arts-a°dio'ss 143Li223 par ici!
+    </p>
+  </div>
+
+<h3>Manuel d'utilisation</h3>
+
+<p>
+    Voici ci-dessous une liste exhaustible de tutoriaux d'utilisation de ce site internet, en espérant que votre navigation soit la plus sympathique possible!
+</p>
+
+<div class="accordion mb-3">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                <b>Édition d'état des lieux</b>
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                Rendez-vous dans l'onglet <strong>État des lieux</strong>, selectionnez le logement que vous souhaitez. Ce dernier peut être facilement retrouvé à l'aide de filtre que l'on peut superposer. Cliquez sur le logement souhaité, ensuite une liste d'état des lieux apparaît si il en existe pour ce logement. Il vous suffit simplement d'appuyer sur un des états des lieux pour l'éditer ou le reprendre comme base (il est pertinent de prendre un état des lieux de sortie de l'ancien occupant pour faire la rentrée du nouveau locataire). Vous pouvez aussi créer un nouveau état des lieux, dans ce cas l'état général de chaque élément est remis à zéro.<br>
+                <br>
+                Par ailleurs, le schéma d'état des lieux défini (celui dans l'onglet <strong>Modifier -> Structure d'EDL</strong>) ne prendra effet seulement sur les états des lieux générés par le bouton <strong>Nouveau</strong>.
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                <b>Modification des items</b>
+            </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <strong>Miaou!</strong> Les chats sont souvent cachés dans les code <code>html</code>!!
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingThree">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                Miaou miaou
+            </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                Hello!
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

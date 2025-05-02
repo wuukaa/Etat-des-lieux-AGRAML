@@ -6,7 +6,6 @@ import time
 import math
 from datetime import datetime
 import os
-from .pdf_generation import *
 # from xhtml2pdf import pisa
 
 class color:
@@ -125,7 +124,7 @@ def searchLogements(form: dict) -> list[dict]:
         type_logement = logement.TypeLogement.type
         id_logement = logement.Logement.id
         try:
-            etat_logement = db.session.query(EDL).filter(EDL.id_logement == logement.Logement.id).order_by(desc(EDL.date)).first().occupation
+            etat_logement = db.session.query(EDL).filter(EDL.id_logement == logement.Logement.id).order_by(desc(EDL.date)).first().etat
         except:
             etat_logement = None
         ListeLogements.append({'id_logement': id_logement,
@@ -145,7 +144,7 @@ def getListeEtatDesLieux(id_logement: int) -> dict:
     QueryEDL = db.session.query(EDL).filter(EDL.id_logement == id_logement).order_by(desc(EDL.date)).first()
     user = getUser(QueryEDL.effectue_par)
     edl = {'id_edl' : QueryEDL.id,
-            'occupation' : QueryEDL.occupation,
+            'etat' : QueryEDL.etat,
             'date' : tempsHTMLVersHumain(tempsSecondeVersHTML(float(QueryEDL.date))),
             'nom' : QueryEDL.nom,
             'prenom' : QueryEDL.prenom,
@@ -228,36 +227,27 @@ def updateElement(form, id_cat):
         split = elm.split('.')
         id_element = split[0]
         if id_element != 'newitem':
-            champ = split[1]
-            valeur = form[elm]
-            if champ == 'intitule':
-                intitule = valeur
-            else:
-                if intitule == '' and valeur == '':
-                    typeEDLtable = db.session.query(TypeEDL).where(TypeEDL.id_element == id_element).first()
-                    valeurTable = db.session.query(Valeur).where(Valeur.id_element == id_element).first()
-                    if typeEDLtable == None and valeurTable == None:
-                        element_del = db.session.query(Element).where(Element.id == id_element).first()
-                        db.session.delete(element_del)
-                        db.session.commit()
-                    else:
-                        flash("L'élement est utilisé ailleurs (structure d'EDL et dans les EDL).", category="error")
-                else:
-                    line_db = db.session.query(Element).where(Element.id == id_element).first()
-                    line_db.intitule = intitule
-                    line_db.prix = valeur
+            intitule = form[elm]
+            if intitule == '':
+                typeEDLtable = db.session.query(TypeEDL).where(TypeEDL.id_element == id_element).first()
+                valeurTable = db.session.query(Valeur).where(Valeur.id_element == id_element).first()
+                if typeEDLtable == None and valeurTable == None:
+                    element_del = db.session.query(Element).where(Element.id == id_element).first()
+                    db.session.delete(element_del)
                     db.session.commit()
-                    print(f"{color.WARNING}Information: {color.OKBLUE}Ligne {id_element} modifié dans la table Element{color.ENDC}")
-        else:
-            if split[1] == 'intitule':
-                new_intitule = form[elm]
+                else:
+                    flash("L'élement est utilisé ailleurs (structure d'EDL et dans les EDL).", category="error")
             else:
-                new_prix = form[elm]
-    if new_intitule != '' and new_prix != '':
-        new_element = Element(id_categorie=id_cat,
-                intitule=new_intitule,
-                prix=new_prix)
-        db.session.add(new_element)
+                line_db = db.session.query(Element).where(Element.id == id_element).first()
+                line_db.intitule = intitule
+                db.session.commit()
+                print(f"{color.WARNING}Information: {color.OKBLUE}Ligne {id_element} modifié dans la table Element{color.ENDC}")
+        else:
+            new_intitule = form[elm]
+            if new_intitule != '':
+                new_element = Element(id_categorie=id_cat,
+                                      intitule=new_intitule)
+                db.session.add(new_element)
         db.session.commit()
         print(f"{color.WARNING}Information: {color.OKBLUE}Ligne ajoutée dans la table Element{color.ENDC}")
 
@@ -368,7 +358,7 @@ def getEDLInformation(id_edl: int, edl_existant: bool) -> dict:
             'logement': QueryLogement.batiment + '.' + str(QueryLogement.etage) + '.' + QueryLogement.numero,
             'type_logement': QueryTypeLogement.type,
             'signature': '' if edl_existant else QueryEDL.signature,
-            'type_edl': QueryEDL.occupation}
+            'type_edl': QueryEDL.etat}
     return EDLInformation
 
 # Utiliser cette fonction pour supprimer un EDL totalement (valeurs, historique et edl)
@@ -385,8 +375,11 @@ def deleteEDL(id_edl: int) -> ...:
             except:
                 print("suppression de photo impossible")
     for val in QueryValeur:
-        QueryInterventionRelatif = db.session.query(Intervention).filter(val.id == Intervention.id_valeur)
-        db.session.delete(QueryInterventionRelatif)
+        QueryInterventionRelatif = db.session.query(Intervention).filter(val.id == Intervention.id_valeur).first()
+        try:
+            db.session.delete(QueryInterventionRelatif)
+        except:
+            pass
         db.session.delete(val)
     historique = db.session.query(Historique).filter(Historique.id_edl == id_edl).all()
     for edl in historique:
@@ -398,10 +391,10 @@ def deleteEDL(id_edl: int) -> ...:
     print(f"{color.WARNING}Information: {color.OKBLUE}L'EDL n°{id_edl} a été supprimé ainsi que ses informations associées{color.ENDC}")
 
 # Fonction qui créer un EDL
-def createEDL(form: dict, occupe: bool, id_logement: int, id_user: int, ListeImageNom: list[str,]):
+def createEDL(form: dict, etat: str, id_logement: int, id_user: int, ListeImageNom: list[str,]) -> int:
     new_edl = EDL(  id_logement=id_logement,
                     effectue_par=id_user,
-                    occupation=occupe,
+                    etat=etat,
                     date=tempsHTMLVersSeconde(form['Information.date']),
                     nom=form['Information.nom'],
                     prenom=form['Information.prenom'],
@@ -537,20 +530,23 @@ def updateLogements(form):
                     db.session.add(new_logement)
                     db.session.commit()
 
-def sortEDLbyDate():
+def getHistoriqueEDL():
     Histo = db.session.query(Historique).order_by(Historique.date).all()
     ListEDL = []
     for edl in Histo:
         edl_select = db.session.query(EDL).filter(EDL.id == edl.id_edl).first()
         logement_select = db.session.query(Logement).filter(Logement.id == edl_select.id_logement).first()
         logement = logement_select.batiment + "." + str(logement_select.etage) + "." + logement_select.numero
-        ListEDL.append([edl_select, edl.action, tempsHTMLVersHumain(tempsSecondeVersHTML(int(edl.date))), logement])
+        ListEDL.append({'edl': edl_select,
+                        'action': edl.action,
+                        'date': tempsHTMLVersHumain(tempsSecondeVersHTML(float(edl_select.date))),
+                        'logement': logement})
     ListEDL.reverse()
     return ListEDL
 
 # Fonction qui determine quelle page est active pour le menu en haut
 def activePage(id: int) -> ...:
-    len = 14
+    len = 20
     active = len * ['']
     active[id] = 'active'
     return active
@@ -564,8 +560,8 @@ def deleteStructure(id_type: str) -> ...:
 # Fonction qui gère l'historique des actions
 # 0 -> supprimé ; 1 -> modif ; 2 -> arrivé ; 3 -> départ
 def appendHistorique(id_edl, action):
-    date = int(time.time())
-    new_event = Historique(id_edl=id_edl, action=action, date = date)
+    date = db.session.query(EDL).filter(EDL.id == id_edl).first().date
+    new_event = Historique(id_edl=id_edl, action=action, date=date)
     db.session.add(new_event)
     db.session.commit()
 
