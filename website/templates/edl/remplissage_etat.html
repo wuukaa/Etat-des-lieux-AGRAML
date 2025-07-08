@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+
+<br>
+<h1 class="display-4">Remplissage de l'état des lieux</h1>
+<br>
+
+<!--Barre de progression-->
+<div class="progress-stacked  mb-3" style="height: 50px">
+  <div class="progress border" role="progressbar" style="height: 50px; width: 33%">
+    <div class="progress-bar" style="background-color: rgb(168, 168, 168);">1. Selection du logement</div>
+  </div>
+  <div class="progress border" role="progressbar" style="height: 50px; width: 34%">
+    <div class="progress-bar" style="background-color: rgb(168, 168, 168);">2. Type d'état des lieux</div>
+  </div>
+  <div class="progress border" role="progressbar" style="height: 50px; width: 33%">
+    <div class="progress-bar">3. Édition de l'état des lieux</div>
+  </div>
+</div>
+
+<!--Début du formulaire-->
+<ul class="list-group mb-4">
+{% for categorie in etat %}
+
+    <!--Nom de la catégorie-->
+    <li class="list-group-item list-group-item-primary pt-3"><h4>{{categorie}}</h4></li>
+
+    {% for element in etat[categorie] %}
+
+        <!--Nom de l'élément-->
+        <li class="list-group-item">{{element.intitule}}<br>
+
+            <!--Selection de l'état-->
+            <div class="list-group">
+                <div class="btn-group mt-1 mb-1" role="group" aria-label="Basic radio toggle button group">
+
+                    {% for bouton in element.etat %}
+
+                        <input type="radio" class="btn-check " id="{{element.id}}.{{bouton.valeur}}" name="{{element.id}}.{{categorie}}.{{element.intitule}}.valeur" value="{{bouton.valeur}}"
+                        {% if bouton.actif %} checked {% endif %}>
+                        <label class="btn btn btn-outline-{{bouton.couleur}}" for="{{element.id}}.{{bouton.valeur}}">{{bouton.attribut}}</label>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+        </li>
+
+    {% endfor %}
+
+{% endfor %}
+</ul>
+
+
+<div class="d-flex justify-content-center mb-4 gap-2">
+    <button type="submit" class="btn btn-lg btn-success">Sauvegarder</button>
+    <button type="submit" class="btn btn-lg btn-info">Continuer</button>
+</div>
+
+
+{% endblock %}

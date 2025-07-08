@@ -140,7 +140,7 @@ def getUser(id_user: int) -> dict:
     return user
 
 # Fonction qui récupère la liste des EDL par logement spécifique
-def getListeEtatDesLieux(id_logement: int) -> dict:
+def getLastEtatDesLieux(id_logement: int) -> dict:
     QueryEDL = db.session.query(EDL).filter(EDL.id_logement == id_logement).order_by(desc(EDL.date)).first()
     user = getUser(QueryEDL.effectue_par)
     edl = {'id_edl' : QueryEDL.id,
@@ -149,7 +149,9 @@ def getListeEtatDesLieux(id_logement: int) -> dict:
             'nom' : QueryEDL.nom,
             'prenom' : QueryEDL.prenom,
             'agraml_nom': user['nom'],
-            'agraml_prenom': user['prenom']}
+            'agraml_prenom': user['prenom'],
+            'pre_edl': QueryEDL.pre_edl,
+            'logement_occupe': QueryEDL.etat}
     return edl
 
 # Fonction qui récupère les données d'un état des lieux en fonction de son id
@@ -399,7 +401,8 @@ def createEDL(form: dict, etat: str, id_logement: int, id_user: int, ListeImageN
                     nom=form['Information.nom'],
                     prenom=form['Information.prenom'],
                     mail=form['Information.mail'],
-                    signature=form['signature'])
+                    signature=form['signature'],
+                    pre_edl = True)
     db.session.add(new_edl)
     db.session.commit()
     id_edl = new_edl.id

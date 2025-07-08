@@ -45,6 +45,7 @@ class EDL(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_logement = db.Column(db.Integer, db.ForeignKey('logement.id'))
     effectue_par = db.Column(db.Integer, db.ForeignKey('user.id'))
+    pre_edl = db.Column(db.Boolean)
     etat = db.Column(db.String(20))
     date = db.Column(db.String(100))
     nom = db.Column(db.String(100))

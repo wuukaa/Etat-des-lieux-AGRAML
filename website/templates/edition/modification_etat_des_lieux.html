@@ -5,6 +5,21 @@
 <br>
 <h1 class="display-4">Édition de l'état des lieux</h1>
 <br>
+
+<!--Barre de progression-->
+<div class="progress-stacked  mb-3" style="height: 50px">
+  <div class="progress border" role="progressbar" style="height: 50px; width: 33%">
+    <div class="progress-bar" style="background-color: rgb(168, 168, 168);">1. Selection du logement</div>
+  </div>
+  <div class="progress border" role="progressbar" style="height: 50px; width: 34%">
+    <div class="progress-bar" style="background-color: rgb(168, 168, 168);">2. Type d'état des lieux</div>
+  </div>
+  <div class="progress border" role="progressbar" style="height: 50px; width: 33%">
+    <div class="progress-bar">3. Édition de l'état des lieux</div>
+  </div>
+</div>
+
+<!--Formulaire-->
 <form method="post" action="/requete_etat_des_lieux?id_edl={{id_edl}}&id_logement={{EDLInformation.id_logement}}" id="edl_form" enctype="multipart/form-data">
 <div class="list-group">
     <li class="list-group-item list-group-item-success">
@@ -102,7 +117,7 @@
                                 <option value="on">Oui</option>
                                 <option value="off" selected>Non</option>
                             </select>
-                            <label for="select-facturation">À facturer</label>
+                            <label for="select-facturation">Intervention</label>
                         </div>
                     </div>
                 </div>
@@ -175,14 +190,10 @@
 <br>
 
 <div class="text-center">
-    {% if not EDLInformation.supprime %}
-        <div class="btn-group">
-            <button class="btn btn-success" type="submit" name="0.action" value="arrivee">Arrivée</button>
-            <button class="btn btn-success" type="submit" name="0.action" value="depart">Départ</button>
-        </div>
-    {% else %} 
-    <button class="btn btn-danger" type="submit" name="0.action" value="defsupp">Supprimer definitivement</button>
-    {% endif %}
+    <div class="btn-group">
+        <button class="btn btn-success" type="submit" name="0.action" value="arrivee">Arrivée</button>
+        <button class="btn btn-success" type="submit" name="0.action" value="depart">Départ</button>
+    </div>
 </div>
 <br>
 </form>

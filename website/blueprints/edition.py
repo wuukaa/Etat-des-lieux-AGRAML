@@ -7,34 +7,6 @@ from ..functions import *
 
 edition = Blueprint('edition', __name__, template_folder='../templates/edition')
 
-# Redirection vers la page de modification d'état des lieux
-@edition.route('recherche/<logement>/<edl>/', methods = ['GET', 'POST'])
-@login_required
-def modification_etat_des_lieux(logement: str, edl: str):
-    try:
-        id_edl = edl.split('-')[2]
-        type_creation = edl.split('-')[1]
-    except:
-        type_creation = edl
-        id_edl = None
-    id_logement = logement.split('-')[1]
-    ListeImages = list()
-    if type_creation == 'nouveau':
-        type_logement = db.session.query(Logement).filter(Logement.id == id_logement).first().type_logement
-        Etats = getTemplateEtatDesLieux(type_logement)
-        EDLInformation = getTemplateEtatDesLieuxInformation(id_logement, current_user)
-        edl_existant = True
-    elif type_creation == 'inc':
-        # EDL existant avec photos et infos
-        Etats = getEtat(id_edl)
-        ListeImages = recuperationImages(id_edl)
-        EDLInformation = getEDLInformation(id_edl, False)
-    elif type_creation == 'exc':
-        # EDL existant sans photos
-        Etats = getEtat(id_edl)
-        EDLInformation = getEDLInformation(id_edl, True)
-    return render_template('modification_etat_des_lieux.html', active=activePage(1),  user=current_user,  Etats = Etats, id_edl = id_edl, EDLInformation=EDLInformation, ListeImages=ListeImages, enumerate=enumerate)
-
 # Redirection vers la page de modification des éléments
 @edition.route('modifier_elements', methods = ['GET', 'POST'])
 @login_required

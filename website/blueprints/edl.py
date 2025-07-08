@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, flash, redirect, make_response, url_for
 from flask_login import login_required, current_user
-from ..models import TypeLogement
+from ..models import TypeLogement, EDL
 from .. import db
 import jinja2
 import pdfkit
@@ -67,15 +67,69 @@ def recherche():
 # Redirection vers la page de la liste des états des lieux pour un logement
 @edl.route('recherche/<logement>/', methods = ['GET', 'POST'])
 @login_required
-def liste_etat_des_lieux(logement):
+def action_edl(logement):
     # On récupère l'identifiant associé au logement
     id_logement = logement.split('-')[1]
+    query_logement = db.session.query(Logement).filter(Logement.id == id_logement).first()
+    id_type_logement = query_logement.type_logement
     try:
-        edl = getListeEtatDesLieux(id_logement)
+        edl = getLastEtatDesLieux(id_logement)
     except:
-        edl = None
+        etat = getTemplateEtatDesLieux(id_type_logement)
+        return render_template('remplissage_etat.html', active=activePage(1), user=current_user, etat=etat)
+    return render_template('action_logement.html', active=activePage(1),  id_logement=id_logement, user=current_user, edl=edl)
 
-    return render_template('liste_etat_des_lieux.html', active=activePage(1),  id_logement=id_logement, user=current_user, edl=edl)
+# Redirection vers la page de la liste des états des lieux pour un logement
+@edl.route('recherche/<logement>/<action>/', methods = ['GET', 'POST'])
+@login_required
+def liste_etat_des_lieux(logement, action):
+    id_logement = logement.split('-')[-1]
+    # Accès à la base de donnée
+    query_edl = db.session.query(EDL).filter(EDL.id_logement == id_logement).order_by(desc(EDL.date)).first()
+    query_logement = db.session.query(Logement).filter(Logement.id == id_logement).first()
+    # Définition des variables de choix d'action
+    logement_occupee = True if query_edl.etat == "arrivee" else False
+    pre_edl = query_edl.pre_edl
+    id_type_logement = query_logement.type_logement
+
+    # Si on clique sur un nouvel état des lieux
+    if action == "etat-new":
+        etat = getTemplateEtatDesLieux(id_type_logement)
+        return render_template('remplissage_etat.html', active=activePage(1), user=current_user, etat=etat)
+    
+    # Si on clique sur reprise
+    elif action == "etat-rep":
+        if logement_occupee:
+            return "On reprend l'état d'arrivée en arrivant sur la page de remplissage"
+        else:
+            if pre_edl:
+                return "Logement libre donc on reprend le pre edl directe aux infos"
+            else:
+                return "On reprend l'état de l'ancien locataire sans ses informations dircte aux infos"
+    
+    ## Ancien code
+    try:
+        id_edl = edl.split('-')[2]
+        type_creation = edl.split('-')[1]
+    except:
+        type_creation = edl
+        id_edl = None
+    id_logement = logement.split('-')[1]
+    ListeImages = list()
+    if type_creation == 'nouveau':
+        type_logement = db.session.query(Logement).filter(Logement.id == id_logement).first().type_logement
+        Etats = getTemplateEtatDesLieux(type_logement)
+        EDLInformation = getTemplateEtatDesLieuxInformation(id_logement, current_user)
+    elif type_creation == 'inc':
+        # EDL existant avec photos et infos
+        Etats = getEtat(id_edl)
+        ListeImages = recuperationImages(id_edl)
+        EDLInformation = getEDLInformation(id_edl, False)
+    elif type_creation == 'exc':
+        # EDL existant sans photos
+        Etats = getEtat(id_edl)
+        EDLInformation = getEDLInformation(id_edl, True)
+    return render_template('modification_etat_des_lieux.html', active=activePage(1),  user=current_user,  Etats = Etats, id_edl = id_edl, EDLInformation=EDLInformation, ListeImages=ListeImages, enumerate=enumerate)
 
 # Pour récupérer les détails des états des lieux
 @edl.route('requete_etat_des_lieux', methods = ['POST', 'GET'])
