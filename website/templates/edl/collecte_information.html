@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+
+<br>
+<h1 class="display-4">Récolte des informations</h1>
+<br>
+
+<!--Barre de progression-->
+<div class="progress-stacked  mb-3" style="height: 50px">
+  <div class="progress border" role="progressbar" style="height: 50px; width: 33%">
+    <div class="progress-bar" style="background-color: rgb(168, 168, 168);">1. Selection du logement</div>
+  </div>
+  <div class="progress border" role="progressbar" style="height: 50px; width: 34%">
+    <div class="progress-bar" style="background-color: rgb(168, 168, 168);">2. Type d'état des lieux</div>
+  </div>
+  <div class="progress border" role="progressbar" style="height: 50px; width: 33%">
+    <div class="progress-bar">3. Édition de l'état des lieux</div>
+  </div>
+</div>
+
+<!--Début du formulaire-->
+<form action="/confirmation_edl/edl-{{edl.id}}" method="post">
+    <ul class="list-group mb-4">
+        <!--Locataire-->
+        <li class="list-group-item list-group-item-primary pt-3"><h4>Informations sur le locataire</h4></li>
+        <li class="list-group-item">
+            <div class="form-floating mb-3 mt-2">
+                <input type="text" class="form-control" name="prenom" id="prenom-locataire" placeholder="Prénom">
+                <label for="prenom-locataire">Prénom</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="nom" id="nom-locataire" placeholder="Nom">
+                <label for="nom-locataire">Nom</label>
+            </div>
+            <div class="form-floating mb-2">
+                <input type="email" class="form-control" name="email" id="mail-locataire" placeholder="Mail">
+                <label for="mail-locataire">Adresse e-mail</label>
+            </div>
+        </li>
+        <!--Membre AGRAML-->
+        <li class="list-group-item list-group-item-primary pt-3"><h4>Informations sur le membre de l'AGRAML</h4></li>
+        <li class="list-group-item">
+            <div class="form-floating mb-3 mt-2">
+                <input type="text" class="form-control" id="prenom-locataire" placeholder="Prénom" value="{{user.prenom}}" disabled>
+                <label for="prenom-locataire">Prénom</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="nom-locataire" placeholder="Nom" value="{{user.nom}}" disabled>
+                <label for="nom-locataire">Nom</label>
+            </div>
+            <div class="form-floating mb-2">
+                <input type="email" class="form-control" id="mail-locataire" placeholder="Mail" value="{{user.email}}" disabled>
+                <label for="mail-locataire">Adresse e-mail</label>
+            </div>
+        </li>
+        <!--Info EDL-->
+        <li class="list-group-item list-group-item-primary pt-3"><h4>Informations sur l'état des lieux</h4></li>
+        <li class="list-group-item">
+            <div class="row g-3 mb-2">
+                <div class="col mt-4">
+                    <input class="form-control" type="datetime-local" id="start" name="Information.date" value="{{heure}}"/>
+                </div>
+                <div class="col mt-4">
+                    <div class="list-group">
+                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                            <input type="radio" class="btn-check" name="etat-edl" value="arrivee" id="arrivee" autocomplete="off"
+                            {% if edl.etat == 'depart' %} checked {% endif %}>
+                            <label class="btn btn-outline-primary" for="arrivee">Arrivée</label>
+{{edl.id}}
+                            <input type="radio" class="btn-check" name="etat-edl" value="depart" id="depart" autocomplete="off"
+                            {% if edl.etat == 'arrivee' %} checked {% endif %}>
+                            <label class="btn btn-outline-primary" for="depart">Départ</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-primary pt-3"><h4>Signatures</h4></li>
+        <li class="list-group-item">
+            <div class="row mb-2">
+                <div class="col">
+                    <p class="mt-2">Veuillez signer ci-dessous</p>
+                    <div class="wrapper border border-2 rounded" style="background-color: rgb(244, 244, 244);">
+                        <canvas id="signature-pad" class="signature-pad" width=400 height=200></canvas>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-secondary mt-2" type="button" id="clear">Effacer</button>
+                    </div>
+                    <input id="image" class="d-none" name="signature" value="">
+                </div>
+                <div class="col">
+                    <p class="mt-2">{{user.prenom}} {{user.nom}},</p>
+                    <div class="wrapper border border-2 rounded" style="background-color: rgb(244, 244, 244);">
+                        <canvas id="signature-pad" class="signature-pad" width=400 height=200></canvas>
+                        <img src="{{user.signature}}"/>
+                    </div>
+                </div>
+            </div>
+        </li>
+
+    </ul>
+
+    <!--Bouton de confirmation-->
+    <div class="d-flex justify-content-center mb-4 gap-2">
+        <button type="submit" class="btn btn-lg btn-primary" name="action" value="next">Continuer</button>
+    </div>
+
+</form>
+
+<script 
+          src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"
+        ></script>
+<script
+          type="text/javascript"
+          src="{{ url_for('static', filename='sign.js') }}"
+        ></script>
+
+{% endblock %}

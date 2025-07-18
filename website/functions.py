@@ -691,3 +691,42 @@ def getListeInterventions(Journal: bool) -> list[dict,]:
         interventionRelative = {"id": id, "logement": logement, "intitule_element": intitule_element, "intitule_categorie": intitule_categorie, "prenom_responsable": prenom_responsable, "nom_responsable": nom_responsable, "observation": observation}
         ListeInterventions.append(interventionRelative)
     return ListeInterventions
+
+# Fonction qui permet de sauvegarder un pré état des lieux
+def saveEtatEDL(formulaire, id_logement, utilisateur) -> int:
+    nouveau_edl = EDL(id_logement=id_logement,
+                      effectue_par=utilisateur.id,
+                      pre_edl=True,
+                      etat='depart',
+                      date= time.time(),
+                      nom='',
+                      prenom='',
+                      mail='',
+                      signature='')
+    db.session.add(nouveau_edl)
+    db.session.commit()
+    id_edl = nouveau_edl.id
+    for key in formulaire:
+        if key != 'action':
+            id_element = key.split('-')[-1]
+            valeur = formulaire.get(key)
+            print(id_element, valeur)
+            nouvelle_valeur = Valeur(id_edl=id_edl,
+                                     id_element=id_element,
+                                     valeur=valeur,
+                                     observation='',
+                                     facturation=False)
+            db.session.add(nouvelle_valeur)
+    db.session.commit()
+    return id_edl
+
+# Fonction qui enregistre les informations d'un edl
+def saveInformationEDL(formulaire, id_edl) -> None:
+    edl = db.session.query(EDL).filter(EDL.id == id_edl).first()
+    edl.mail = formulaire.get('email')
+    edl.prenom = formulaire.get('prenom')
+    edl.nom = formulaire.get('nom')
+    edl.etat = formulaire.get('etat-edl')
+    edl.signature = formulaire.get('signature')
+    edl.pre_edl = False
+    db.session.commit()

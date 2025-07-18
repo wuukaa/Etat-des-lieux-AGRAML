@@ -19,43 +19,45 @@
 </div>
 
 <!--Début du formulaire-->
-<ul class="list-group mb-4">
-{% for categorie in etat %}
+<form method="post" action="confirmation/">
+    <ul class="list-group mb-4">
+    {% for categorie in etat %}
 
-    <!--Nom de la catégorie-->
-    <li class="list-group-item list-group-item-primary pt-3"><h4>{{categorie}}</h4></li>
+        <!--Nom de la catégorie-->
+        <li class="list-group-item list-group-item-primary pt-3"><h4>{{categorie}}</h4></li>
 
-    {% for element in etat[categorie] %}
+        {% for element in etat[categorie] %}
 
-        <!--Nom de l'élément-->
-        <li class="list-group-item">{{element.intitule}}<br>
+            <!--Nom de l'élément-->
+            <li class="list-group-item">{{element.intitule}}<br>
 
-            <!--Selection de l'état-->
-            <div class="list-group">
-                <div class="btn-group mt-1 mb-1" role="group" aria-label="Basic radio toggle button group">
+                <!--Selection de l'état-->
+                <div class="list-group">
+                    <div class="btn-group mt-1 mb-1" role="group" aria-label="Basic radio toggle button group">
 
-                    {% for bouton in element.etat %}
+                        {% for bouton in element.etat %}
 
-                        <input type="radio" class="btn-check " id="{{element.id}}.{{bouton.valeur}}" name="{{element.id}}.{{categorie}}.{{element.intitule}}.valeur" value="{{bouton.valeur}}"
-                        {% if bouton.actif %} checked {% endif %}>
-                        <label class="btn btn btn-outline-{{bouton.couleur}}" for="{{element.id}}.{{bouton.valeur}}">{{bouton.attribut}}</label>
+                            <input type="radio" class="btn-check " id="{{element.id}}.{{bouton.valeur}}" name="etat-{{element.id}}" value="{{bouton.valeur}}"
+                            {% if bouton.actif %} checked {% endif %}>
+                            <label class="btn btn btn-outline-{{bouton.couleur}}" for="{{element.id}}.{{bouton.valeur}}">{{bouton.attribut}}</label>
 
-                    {% endfor %}
+                        {% endfor %}
 
+                    </div>
                 </div>
-            </div>
-        </li>
+            </li>
+
+        {% endfor %}
 
     {% endfor %}
+    </ul>
 
-{% endfor %}
-</ul>
+    <!--Boutons de confirmation-->
+    <div class="d-flex justify-content-center mb-4 gap-2">
+        <button type="submit" class="btn btn-lg btn-success" name="action" value="save">Sauvegarder</button>
+        <button type="submit" class="btn btn-lg btn-info" name="action" value="next">Continuer</button>
+    </div>
 
-
-<div class="d-flex justify-content-center mb-4 gap-2">
-    <button type="submit" class="btn btn-lg btn-success">Sauvegarder</button>
-    <button type="submit" class="btn btn-lg btn-info">Continuer</button>
-</div>
-
+</form>
 
 {% endblock %}
