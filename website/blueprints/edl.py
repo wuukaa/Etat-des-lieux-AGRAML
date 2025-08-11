@@ -94,50 +94,27 @@ def remplissage_etat(logement, action):
         query_edl = db.session.query(EDL).filter(EDL.id_logement == id_logement).order_by(desc(EDL.date)).first()
         logement_occupee = True if query_edl.etat == "arrivee" else False
         pre_edl = query_edl.pre_edl
+        id_edl = db.session.query(EDL, Logement).where(EDL.id_logement == Logement.id).filter(Logement.id == id_logement).order_by(desc(EDL.date)).first().EDL.id
     except:
         etat = getTemplateEtatDesLieux(id_type_logement)
-        return render_template('remplissage_etat.html', active=activePage(1), user=current_user, etat=etat)    
+        return render_template('remplissage_etat.html', active=activePage(1), user=current_user, etat=etat, logement_occupee=False)    
 
     # Si on clique sur un nouvel état des lieux
     if action == "etat-new":
         etat = getTemplateEtatDesLieux(id_type_logement)
-        return render_template('remplissage_etat.html', active=activePage(1), user=current_user, etat=etat)
+        return render_template('remplissage_etat.html', active=activePage(1), user=current_user, etat=etat, logement_occupee=logement_occupee)
     
     # Si on clique sur reprise
     elif action == "etat-rep":
-        if logement_occupee:
-            id_edl = db.session.query(EDL, Logement).where(EDL.id_logement == Logement.id).filter(Logement.id == id_logement).order_by(desc(EDL.date)).first().EDL.id
+        if not logement_occupee:
             etat = getEtat(id_edl)
-            return render_template('remplissage_etat.html', active=activePage(1), user=current_user, etat=etat)
+            return render_template('remplissage_etat.html', active=activePage(1), user=current_user, etat=etat, logement_occupee=logement_occupee)
         else:
             if pre_edl:
-                return "Logement libre donc on reprend le pre edl directe aux infos"
+                return redirect(f'/recolte-informations/edl-{id_edl}')
             else:
-                return "On reprend l'état de l'ancien locataire sans ses informations dircte aux infos"
-    
-    ## Ancien code
-    try:
-        id_edl = edl.split('-')[2]
-        type_creation = edl.split('-')[1]
-    except:
-        type_creation = edl
-        id_edl = None
-    id_logement = logement.split('-')[1]
-    ListeImages = list()
-    if type_creation == 'nouveau':
-        type_logement = db.session.query(Logement).filter(Logement.id == id_logement).first().type_logement
-        Etats = getTemplateEtatDesLieux(type_logement)
-        EDLInformation = getTemplateEtatDesLieuxInformation(id_logement, current_user)
-    elif type_creation == 'inc':
-        # EDL existant avec photos et infos
-        Etats = getEtat(id_edl)
-        ListeImages = recuperationImages(id_edl)
-        EDLInformation = getEDLInformation(id_edl, False)
-    elif type_creation == 'exc':
-        # EDL existant sans photos
-        Etats = getEtat(id_edl)
-        EDLInformation = getEDLInformation(id_edl, True)
-    return render_template('modification_etat_des_lieux.html', active=activePage(1),  user=current_user,  Etats = Etats, id_edl = id_edl, EDLInformation=EDLInformation, ListeImages=ListeImages, enumerate=enumerate)
+                etat = getEtat(id_edl)
+                return render_template('remplissage_etat.html', active=activePage(1), user=current_user, etat=etat, logement_occupee=logement_occupee)
 
 # Redirection
 @edl.route('recherche/<logement>/<action>/confirmation/', methods = ['GET', 'POST'])
@@ -146,6 +123,7 @@ def confirmation_etat(logement, action):
     formulaire = request.form
     id_logement = logement.split('-')[-1]
     id_edl = saveEtatEDL(formulaire, id_logement, current_user)
+    sauvegardeImages(request.files, id_edl)
     if formulaire.get('action') == 'save':
         flash('Pré-état des lieux enregistré avec succès!', category='success')
         return redirect("/recherche", code='302')
@@ -167,6 +145,8 @@ def confirmation_edl(edl):
     id_edl = edl.split('-')[-1]
     formulaire = request.form
     saveInformationEDL(formulaire, id_edl)
+    action = 2 if request.form.get('etat-edl') == 'arrivee' else 3
+    appendHistorique(id_edl, action)
     return redirect("/recherche", code='302')
 
 # Pour récupérer les détails des états des lieux

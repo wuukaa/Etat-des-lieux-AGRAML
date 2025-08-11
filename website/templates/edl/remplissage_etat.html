@@ -19,12 +19,14 @@
 </div>
 
 <!--Début du formulaire-->
-<form method="post" action="confirmation/">
+<form method="post" action="confirmation/" enctype="multipart/form-data">
     <ul class="list-group mb-4">
     {% for categorie in etat %}
 
         <!--Nom de la catégorie-->
-        <li class="list-group-item list-group-item-primary pt-3"><h4>{{categorie}}</h4></li>
+        <li class="list-group-item list-group-item-primary pt-3">
+          <h4>{{categorie}}</h4>
+        </li>
 
         {% for element in etat[categorie] %}
 
@@ -37,13 +39,16 @@
 
                         {% for bouton in element.etat %}
 
-                            <input type="radio" class="btn-check " id="{{element.id}}.{{bouton.valeur}}" name="etat-{{element.id}}" value="{{bouton.valeur}}"
+                            <input type="radio" class="btn-check " id="{{element.id}}.{{bouton.valeur}}" name="etat.{{element.id}}" value="{{bouton.valeur}}"
                             {% if bouton.actif %} checked {% endif %}>
                             <label class="btn btn btn-outline-{{bouton.couleur}}" for="{{element.id}}.{{bouton.valeur}}">{{bouton.attribut}}</label>
 
                         {% endfor %}
 
                     </div>
+                </div>
+                <div>
+                  <input type="text" name="observation.{element.id}}">
                 </div>
             </li>
 
@@ -52,12 +57,35 @@
     {% endfor %}
     </ul>
 
+    <ul class="list-group mb-4">
+      <li class="list-group-item list-group-item-info pt-3">
+        <h4>Photos</h4>
+      </li>
+      <li class="list-group-item">
+        <div class="d-grid col mb-2 mt-2">
+            <button type="button" class="btn btn-outline-info" onclick="ajouterInput()">
+                Ajouter une photo
+            </button>
+        </div>
+        <div id='imagesInputs'>
+            <!-- Les inputs s'insèrent ici-->
+        </div>
+      </li>
+    </ul>
+
     <!--Boutons de confirmation-->
     <div class="d-flex justify-content-center mb-4 gap-2">
+      {% if not logement_occupee %}
         <button type="submit" class="btn btn-lg btn-success" name="action" value="save">Sauvegarder</button>
-        <button type="submit" class="btn btn-lg btn-info" name="action" value="next">Continuer</button>
+      {% endif %}
+        <button type="submit" class="btn btn-lg btn-primary" name="action" value="next">Continuer</button>
     </div>
 
 </form>
+
+<script
+          type="text/javascript"
+          src="{{ url_for('static', filename='image_loader_edl.js')}}"
+></script>
 
 {% endblock %}

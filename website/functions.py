@@ -124,7 +124,11 @@ def searchLogements(form: dict) -> list[dict]:
         type_logement = logement.TypeLogement.type
         id_logement = logement.Logement.id
         try:
-            etat_logement = db.session.query(EDL).filter(EDL.id_logement == logement.Logement.id).order_by(desc(EDL.date)).first().etat
+            edl_query = db.session.query(EDL).filter(EDL.id_logement == logement.Logement.id).order_by(desc(EDL.date)).first()
+            etat_logement = edl_query.etat
+            pre_edl_query = edl_query.pre_edl
+            if pre_edl_query == True:
+                etat_logement = 'pre-edl'
         except:
             etat_logement = None
         ListeLogements.append({'id_logement': id_logement,
@@ -646,7 +650,7 @@ def recuperationImages(id_edl: str) -> list[str,]:
     return cheminImage
 
 # Fonction qui enregistre les images
-def sauvegardeImages(files) -> list[str,]:
+def sauvegardeImages(files, id_edl) -> None:
     dir = os.path.dirname(__file__)
     ListeImageNom = list()
     for name in files:
@@ -656,7 +660,11 @@ def sauvegardeImages(files) -> list[str,]:
             nom_du_fichier = name.split('.')[-1] + '.' +  extension
             fichier.save(dir + '/static/storage/img/' + nom_du_fichier)
             ListeImageNom.append(nom_du_fichier)
-    return ListeImageNom
+    for image in ListeImageNom:
+        nouveau_image = Image(nom_image = image,
+                                    id_edl= id_edl)
+        db.session.add(nouveau_image)
+    db.session.commit()
 
 # Fonction qui rajoute les interventions si besoin
 def rajoutInterventions(id_edl: int) -> ...:
@@ -694,29 +702,48 @@ def getListeInterventions(Journal: bool) -> list[dict,]:
 
 # Fonction qui permet de sauvegarder un pré état des lieux
 def saveEtatEDL(formulaire, id_logement, utilisateur) -> int:
+    def check_depart(s: str) -> bool:
+        if s == 'depart':
+            return True
+        else:
+            return False
+    # On récupère l'ancien edl pour permuter l'état, si ça renvoit une erreur c'est qu'il n'y a pas d'edl
+    try:
+        ancien_edl = db.session.query(EDL).filter(EDL.id_logement == id_logement).order_by(desc(EDL.date)).first()
+        etat_ancien_edl = ancien_edl.etat
+        if check_depart(etat_ancien_edl):
+            nouveau_etat = 'arrivee'
+        else:
+            nouveau_etat = 'depart'
+    except AttributeError:
+        nouveau_etat = 'arrivee'
     nouveau_edl = EDL(id_logement=id_logement,
                       effectue_par=utilisateur.id,
                       pre_edl=True,
-                      etat='depart',
+                      etat= nouveau_etat,
                       date= time.time(),
-                      nom='',
-                      prenom='',
-                      mail='',
+                      nom=ancien_edl.nom if check_depart(nouveau_etat) else '',
+                      prenom=ancien_edl.prenom if check_depart(nouveau_etat) else '',
+                      mail=ancien_edl.mail if check_depart(nouveau_etat) else '',
                       signature='')
     db.session.add(nouveau_edl)
     db.session.commit()
     id_edl = nouveau_edl.id
     for key in formulaire:
-        if key != 'action':
-            id_element = key.split('-')[-1]
-            valeur = formulaire.get(key)
-            print(id_element, valeur)
+        role = key.split('.')[0]
+        id_element = key.split('.')[-1]
+        valeur = formulaire.get(key)
+        if role == 'etat':
             nouvelle_valeur = Valeur(id_edl=id_edl,
                                      id_element=id_element,
                                      valeur=valeur,
                                      observation='',
                                      facturation=False)
             db.session.add(nouvelle_valeur)
+        elif role == 'observation':
+            nouvelle_valeur.observation = valeur
+
+
     db.session.commit()
     return id_edl
 

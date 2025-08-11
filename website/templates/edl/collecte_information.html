@@ -25,15 +25,15 @@
         <li class="list-group-item list-group-item-primary pt-3"><h4>Informations sur le locataire</h4></li>
         <li class="list-group-item">
             <div class="form-floating mb-3 mt-2">
-                <input type="text" class="form-control" name="prenom" id="prenom-locataire" placeholder="Prénom">
+                <input type="text" class="form-control" name="prenom" id="prenom-locataire" placeholder="Prénom" value="{{edl.prenom}}">
                 <label for="prenom-locataire">Prénom</label>
             </div>
             <div class="form-floating mb-3">
-                <input type="text" class="form-control" name="nom" id="nom-locataire" placeholder="Nom">
+                <input type="text" class="form-control" name="nom" id="nom-locataire" placeholder="Nom" value="{{edl.nom}}">
                 <label for="nom-locataire">Nom</label>
             </div>
             <div class="form-floating mb-2">
-                <input type="email" class="form-control" name="email" id="mail-locataire" placeholder="Mail">
+                <input type="email" class="form-control" name="email" id="mail-locataire" placeholder="Mail" value="{{edl.mail}}">
                 <label for="mail-locataire">Adresse e-mail</label>
             </div>
         </li>
@@ -64,11 +64,11 @@
                     <div class="list-group">
                         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
                             <input type="radio" class="btn-check" name="etat-edl" value="arrivee" id="arrivee" autocomplete="off"
-                            {% if edl.etat == 'depart' %} checked {% endif %}>
-                            <label class="btn btn-outline-primary" for="arrivee">Arrivée</label>
-{{edl.id}}
-                            <input type="radio" class="btn-check" name="etat-edl" value="depart" id="depart" autocomplete="off"
                             {% if edl.etat == 'arrivee' %} checked {% endif %}>
+                            <label class="btn btn-outline-primary" for="arrivee">Arrivée</label>
+
+                            <input type="radio" class="btn-check" name="etat-edl" value="depart" id="depart" autocomplete="off"
+                            {% if edl.etat == 'depart' %} checked {% endif %}>
                             <label class="btn btn-outline-primary" for="depart">Départ</label>
                         </div>
                     </div>
